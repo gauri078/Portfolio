@@ -720,6 +720,7 @@ function Nav() {
       <NavItem label="gauri tsering sharma" target="hero" />
       <NavItem label="about" target="about" />
       <NavItem label="work" target="work" />
+      <NavItem label="contact" target="contact" />
     </nav>
   );
 }
