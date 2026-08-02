@@ -987,6 +987,9 @@ function Work() {
 
 /* =========================== FOOTER =========================== */
 
+// Set this to "/resume.pdf" once the file exists in /public; empty hides the button.
+const RESUME_URL = "";
+
 const SOCIALS = [
   { label: "email", href: "mailto:gauritseringsharma@gmail.com" },
   { label: "linkedin", href: "https://www.linkedin.com/in/gauri-tsering-sharma-053189212/" },
@@ -1033,8 +1036,13 @@ function Footer() {
         <div style={{ display: "flex", flexWrap: "wrap", gap: "20px 32px", marginTop: 38, alignItems: "center" }}>
           {SOCIALS.map((x) => <FooterLink key={x.label} {...x} />)}
         </div>
+        {/* No resume uploaded yet — drop the PDF in /public and set RESUME_URL
+            to "/resume.pdf" to switch this back on. */}
+        {RESUME_URL ? (
         <a
-          href="#"
+          href={RESUME_URL}
+          target="_blank"
+          rel="noreferrer"
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
           style={{
@@ -1055,6 +1063,7 @@ function Footer() {
         >
           download my resume
         </a>
+        ) : null}
         <p style={{ fontFamily: BODY, fontWeight: 300, fontSize: 12, color: MUTED, margin: "78px 0 0" }}>
           © {new Date().getFullYear()} gauri
         </p>
