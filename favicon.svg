@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- "gts" wordmark in dusty rose on a transparent background.
+       The viewBox is the frame the browser scales to fit, so making the letters
+       fill it edge to edge is what makes them look bigger in the tab.
+       textLength forces the word to span the full width regardless of the
+       fallback font the browser happens to use. -->
+  <text
+    x="32" y="34"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+    font-size="46"
+    font-weight="700"
+    textLength="60"
+    lengthAdjust="spacingAndGlyphs"
+    fill="#C4587E"
+  >gts</text>
+</svg>
