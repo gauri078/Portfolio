@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- "gts" wordmark in dusty rose on a transparent background.
+       Font stack falls back to the system sans, since a favicon can't load
+       webfonts. To lock the exact Poppins shapes, convert the text to
+       outlines in Figma and paste the paths in place of this <text>. -->
+  <text
+    x="32" y="34"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+    font-size="34"
+    font-weight="600"
+    letter-spacing="-1.5"
+    fill="#C4587E"
+  >gts</text>
+</svg>

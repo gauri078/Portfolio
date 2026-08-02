@@ -1,0 +1,15 @@
+/* Reset just enough for a full-bleed scrolling page. */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #FCFCFC;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The about section is full-bleed; stop horizontal scrollbars from sneaking in. */
+body { overflow-x: hidden; }
+
+img { display: block; max-width: 100%; }
