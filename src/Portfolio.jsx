@@ -988,9 +988,9 @@ function Work() {
 /* =========================== FOOTER =========================== */
 
 const SOCIALS = [
-  { label: "email", href: "mailto:hello@example.com" },
-  { label: "linkedin", href: "#" },
-  { label: "x", href: "#" },
+  { label: "email", href: "mailto:gauritseringsharma@gmail.com" },
+  { label: "linkedin", href: "https://www.linkedin.com/in/gauri-tsering-sharma-053189212/" },
+  { label: "x", href: "https://x.com/gauri_everybody" },
 ];
 
 function FooterLink({ label, href }) {
@@ -998,6 +998,8 @@ function FooterLink({ label, href }) {
   return (
     <a
       href={href}
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel={href.startsWith("http") ? "noreferrer" : undefined}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{ fontFamily: BODY, fontWeight: 300, fontSize: "clamp(14px, 1.6vw, 17px)", color: hover ? PINK : INK, textDecoration: "none", borderBottom: `1px solid ${hover ? PINK : "rgba(74,64,70,0.18)"}`, paddingBottom: 3, transition: "color 250ms ease, border-color 250ms ease" }}
