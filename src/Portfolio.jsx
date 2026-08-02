@@ -97,7 +97,7 @@ function TyperStyles() {
  * `frame` advances on an interval; each char's class is derived from global
  * progress minus its own bezier control point, so the wave ripples across.
  */
-function Typer({ text, as: Tag = "span", fps = 20, cycles = 3, cycleLength = 0.5, delay = 0, threshold = 0.35, style, className }) {
+function Typer({ text, as: Tag = "span", fps = 20, cycles = 3, cycleLength = 0.5, delay = 0, threshold = 0.35, once = false, style, className }) {
   const ref = useRef(null);
   const [frame, setFrame] = useState(-1); // -1 = untouched (initial)
   const variations = useRef(ALL_VARIATIONS.slice().sort(() => 0.5 - Math.random()));
@@ -126,25 +126,42 @@ function Typer({ text, as: Tag = "span", fps = 20, cycles = 3, cycleLength = 0.5
     if (!el) return;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduce) { setFrame(frames); return; }
+
     let timer = null, iv = null;
+    const stop = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (iv) { clearInterval(iv); iv = null; }
+    };
+    const run = () => {
+      stop();
+      // reshuffle so the ripple never looks the same twice
+      variations.current = ALL_VARIATIONS.slice().sort(() => 0.5 - Math.random());
+      timer = setTimeout(() => {
+        setFrame(0);
+        iv = setInterval(() => {
+          setFrame((f) => {
+            if (f >= frames) { clearInterval(iv); iv = null; return f; }
+            return f + 1;
+          });
+        }, 1000 / fps);
+      }, delay * 1000);
+    };
+
     const io = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        io.disconnect();
-        variations.current = ALL_VARIATIONS.slice().sort(() => 0.5 - Math.random());
-        timer = setTimeout(() => {
-          setFrame(0);
-          iv = setInterval(() => {
-            setFrame((f) => {
-              if (f >= frames) { clearInterval(iv); return f; }
-              return f + 1;
-            });
-          }, 1000 / fps);
-        }, delay * 1000);
+      const e = entries[entries.length - 1];
+      if (e.isIntersecting) {
+        if (once) io.disconnect();
+        run();
+      } else if (!once) {
+        // left the viewport: reset so it types in again on the way back
+        stop();
+        setFrame(-1);
       }
     }, { threshold });
     io.observe(el);
-    return () => { io.disconnect(); if (timer) clearTimeout(timer); if (iv) clearInterval(iv); };
-  }, [frames, fps, delay, threshold]);
+
+    return () => { io.disconnect(); stop(); };
+  }, [frames, fps, delay, threshold, once]);
 
   const started = frame >= 0;
   const progress = started ? frame / denominator : 0;
@@ -732,6 +749,7 @@ function Hero() {
           as="h1"
           fps={22}
           cycles={3}
+          once
           style={{
             display: "block",
             fontFamily: DISPLAY, fontSize: "clamp(56px, 12vw, 148px)", fontWeight: 600,
@@ -972,8 +990,7 @@ function Work() {
 const SOCIALS = [
   { label: "email", href: "mailto:hello@example.com" },
   { label: "linkedin", href: "#" },
-  { label: "instagram", href: "#" },
-  { label: "behance", href: "#" },
+  { label: "x", href: "#" },
 ];
 
 function FooterLink({ label, href }) {
