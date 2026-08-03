@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import DriverBen from "./DriverBen";
 
 /**
- * Portfolio — single scroll-based page.
+ * Portfolio, single scroll-based page.
  *   Hero  ->  About (photo churn)  ->  Work  ->  Footer
  *
  * All headings use the Typer reveal: each glyph ripples through randomized
@@ -15,10 +16,10 @@ const PINK = "#C4587E";     // dusty rose accent
 const DEEP = "#8E3A5C";     // darker petal core
 const BLUSH = "#F4DCE5";    // palest wash
 const PAPER = "#FCFCFC";   // sampled from the white behind the petals
-const INK = "#3E2430";      // deep wine — warm, pulled from the petal centres
+const INK = "#3E2430";      // deep wine, warm, pulled from the petal centres
 const MUTED = "#8A6F7C";
 
-// Poppins: geometric, rounded, single-storey g — the face in the reference.
+// Poppins: geometric, rounded, single-storey g, the face in the reference.
 const DISPLAY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
 const BODY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
 const SHELL = { maxWidth: 1080, margin: "0 auto", width: "100%", padding: "0 clamp(24px, 6vw, 72px)", boxSizing: "border-box" };
@@ -93,7 +94,7 @@ function TyperStyles() {
 }
 
 /**
- * Typer — character-by-character reveal. Fires once when scrolled into view.
+ * Typer, character-by-character reveal. Fires once when scrolled into view.
  * `frame` advances on an interval; each char's class is derived from global
  * progress minus its own bezier control point, so the wave ripples across.
  */
@@ -225,7 +226,7 @@ function GhostReveal({ play, direction = "up", scale = 700, duration = 1100, eas
 function Tile({ src }) {
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: PAPER }}>
-      {/* light, airy, faintly warm — desaturated rather than washed in colour */}
+      {/* light, airy, faintly warm, desaturated rather than washed in colour */}
       <img
         src={src}
         alt=""
@@ -234,7 +235,7 @@ function Tile({ src }) {
           filter: "grayscale(0.55) saturate(0.85) contrast(0.85) brightness(1.2)",
         }}
       />
-      {/* the faintest rose wash — a faded photograph, not a duotone */}
+      {/* the faintest rose wash, a faded photograph, not a duotone */}
       <div style={{ position: "absolute", inset: 0, background: PINK, mixBlendMode: "multiply", opacity: 0.06 }} />
       <div style={{ position: "absolute", inset: 0, background: BLUSH, mixBlendMode: "screen", opacity: 0.2 }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(120,60,90,0.2) 0.9px, transparent 1.1px)", backgroundSize: "3.5px 3.5px", mixBlendMode: "multiply", opacity: 0.04, pointerEvents: "none" }} />
@@ -385,7 +386,7 @@ void main () {
 function ImageDisplacement({
   src,
   zoom = 1,          // 1 = fill the frame (cover); below 1 pulls back to show more
-  anchorX = "center",  // "left" | "center" | "right" — where the image sits when zoomed out
+  anchorX = "center",  // "left" | "center" | "right", where the image sits when zoomed out
   anchorY = "center",  // "top" | "center" | "bottom"
   nudgeX = 0,        // fine offset in frame widths: positive moves the image right
   nudgeY = 0,        // positive moves the image up
@@ -1000,7 +1001,7 @@ function About() {
       <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden", background: PAPER }}>
         {narrow ? (
           // Phone / iPad: no room for a side column, so go back to the original
-          // idea — the photos scatter across the WHOLE frame and pass over the
+          // idea, the photos scatter across the WHOLE frame and pass over the
           // text, which stays pinned underneath them.
           <>
             <div style={{ position: "absolute", inset: 0, zIndex: 2 }}>{stage}</div>
@@ -1165,7 +1166,7 @@ function Footer() {
       />
 
       {/* On phones the flowers sit right under the type, so lay a paper scrim
-          behind the text — same idea as the rose wash in the hero, inverted:
+          behind the text, same idea as the rose wash in the hero, inverted:
           there the cream needed colour behind it, here the ink needs paper. */}
       {isPhone && (
         <div
@@ -1186,7 +1187,7 @@ function Footer() {
         <div style={{ display: "flex", flexWrap: "wrap", gap: "20px 32px", marginTop: 38, alignItems: "center" }}>
           {SOCIALS.map((x) => <FooterLink key={x.label} {...x} />)}
         </div>
-        {/* No resume uploaded yet — drop the PDF in /public and set RESUME_URL
+        {/* No resume uploaded yet, drop the PDF in /public and set RESUME_URL
             to "/resume.pdf" to switch this back on. */}
         {RESUME_URL ? (
         <a
@@ -1224,7 +1225,7 @@ function Footer() {
 
 /* ============================ PAGE ============================ */
 
-export default function Site() {
+function Site() {
   useEffect(() => {
     const l = document.createElement("link");
     l.rel = "stylesheet";
@@ -1243,4 +1244,13 @@ export default function Site() {
       <Footer />
     </div>
   );
+}
+
+/* Simplest possible routing: no libraries. On load, look at the URL path and
+   render the case study for /driverben, otherwise the main site. Links are
+   plain <a href> tags, so each does a normal page load and this runs again. */
+export default function App() {
+  const path = typeof window !== "undefined" ? window.location.pathname.replace(/\/+$/, "") : "";
+  if (path === "/driverben") return <DriverBen />;
+  return <Site />;
 }
