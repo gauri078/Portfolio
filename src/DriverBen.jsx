@@ -756,7 +756,7 @@ function Title() {
       <p style={{ margin: "12px 0 0", fontFamily: BODY, fontWeight: 300, fontSize: 13.5, letterSpacing: "0.03em", color: MUTED }}>
         gauri tsering sharma, abhineet kumar, riya khattri, purva tekale, anuja malu, sania goidani
       </p>
-      <div style={{ marginTop: "clamp(38px,6vw,66px)", borderRadius: 14, overflow: "hidden", border: `1px solid ${BLUSH}` }}>
+      <div style={{ marginTop: "clamp(38px,6vw,66px)", borderRadius: 14, overflow: "hidden", border: `1px solid ${BLUSH}`, background: PAPER }}>
         <img src="https://framerusercontent.com/images/PZwJMRXOFdz1QymchucbjrYWOmQ.png" alt="Driver Ben cover" style={{ width: "100%", display: "block" }} loading="lazy" />
       </div>
     </header>
@@ -873,13 +873,6 @@ function Process() {
           negotiation between household responsibilities and getting to training. The barrier was not
           ambition; it was logistics and the weight of the day.
         </Sub>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 12, marginTop: 6 }}>
-          {[0,1,2].map((k) => (
-            <div key={k} style={{ borderRadius: 10, overflow: "hidden", border: `1px solid ${BLUSH}`, aspectRatio: "4 / 3" }}>
-              <img src="https://framerusercontent.com/images/xh78Ng1EVQLATQkPcIQRtnfvHT8.png" alt="Field research" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
-            </div>
-          ))}
-        </div>
       </Phase>
       <Phase index="02" name="define" sub="synthesis">
         <Sub title="empathy mapping">
