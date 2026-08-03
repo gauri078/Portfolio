@@ -840,6 +840,8 @@ function Hero() {
 
 function About() {
   const wrapRef = useRef(null);
+  const stageRef = useRef(null);
+  const [stageBox, setStageBox] = useState({ w: 1, h: 1 });
   const [progress, setProgress] = useState(0);
   const [reduce, setReduce] = useState(false);
   // Below tablet width there is no room for a side-by-side column, so the photos
@@ -873,11 +875,24 @@ function About() {
     };
   }, []);
 
+  // Measure the stage: tile widths are percentages, so the only way to know a
+  // tile's HEIGHT as a percentage (and therefore keep it inside the frame) is to
+  // know the box's real aspect.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const read = () => setStageBox({ w: el.clientWidth || 1, h: el.clientHeight || 1 });
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [narrow]);
+
   // 24 photos is too many for one pass at any size: each gets too little time and
   // the tail of the scroll runs empty. Take an evenly-spread subset instead, so
   // the selection still ranges across all of them rather than favouring a block.
   const shown = useMemo(() => {
-    const target = isPhone ? 10 : narrow ? 12 : 14;
+    const target = isPhone ? 10 : narrow ? 12 : 15;
     const step = IMAGES.length / target;
     const picked = [];
     for (let k = 0; k < target; k++) {
@@ -908,20 +923,30 @@ function About() {
   };
 
   const stage = (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div ref={stageRef} style={{ position: "relative", width: "100%", height: "100%" }}>
       {shown.map((imgIndex, slot) => {
         const im = IMAGES[imgIndex];
         const { start, end } = windowFor(slot);
         const play = progress > start && progress < end;
         const portrait = im.ratio > 1;
-        const wPct = portrait ? (narrow ? (isPhone ? 40 : 30) : 44) : (narrow ? (isPhone ? 56 : 42) : 60);
+        const wPct = portrait ? (narrow ? (isPhone ? 40 : 30) : 40) : (narrow ? (isPhone ? 56 : 42) : 54);
         const rows = Math.ceil(shown.length / cols);
-        const col = slot % cols;
-        const row = Math.floor(slot / cols);
+
+        // Placement must NOT follow reveal order, or the photos march steadily
+        // down the frame as you scroll. Step through the cells with a stride
+        // co-prime to the cell count so consecutive reveals land far apart.
+        const cells = rows * cols;
+        const cell = (slot * 7) % cells;
+        const col = cell % cols;
+        const row = Math.floor(cell / cols);
         const lx = cols > 1 ? col / (cols - 1) : 0.5;
         const ly = rows > 1 ? row / (rows - 1) : 0.5;
-        const left = Math.max(0, Math.min(100 - wPct, lx * (100 - wPct) + jitter(imgIndex) * 7));
-        const top = Math.max(0, Math.min(76, ly * 76 + jitter(imgIndex + 99) * 5));
+
+        // Height as a percentage of the stage, so a tile can be kept fully
+        // inside it instead of bleeding past the top or bottom edge.
+        const hPct = Math.min(92, ((wPct / 100) * stageBox.w * im.ratio) / stageBox.h * 100);
+        const left = Math.max(0, Math.min(100 - wPct, lx * (100 - wPct) + jitter(imgIndex) * 6));
+        const top = Math.max(0, Math.min(100 - hPct, ly * (100 - hPct) + jitter(imgIndex + 99) * 5));
         return (
           <GhostReveal
             key={imgIndex}
