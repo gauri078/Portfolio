@@ -1050,34 +1050,35 @@ function About() {
 /* ============================ WORK ============================ */
 
 const PROJECTS = [
-  { n: "01", title: "understory", meta: "Cooperative board game · Thesis", year: "2026",
+  { n: "01", title: "driver ben", href: "/driverben", meta: "Research film · Speculative", year: "2024",
+    blurb: "A Hindi diary film on the barriers facing female driver trainees, built from field research, empathy mapping and speculative scenarios." },
+  { n: "02", title: "understory", meta: "Cooperative board game · Thesis", year: "2026",
     blurb: "A game about the banj oak forests of Uttarakhand, where players may destroy through their return the very grove that survived their absence." },
-  { n: "02", title: "the reckoning", meta: "Web app · Interaction", year: "2025",
+  { n: "03", title: "the reckoning", meta: "Web app · Interaction", year: "2025",
     blurb: "A slot machine that decides who pays the bill. Cyberpunk neon, real stakes, no arguments afterwards." },
-  { n: "03", title: "thirty three & a third", meta: "Brand identity · UI", year: "2025",
+  { n: "04", title: "thirty three & a third", meta: "Brand identity · UI", year: "2025",
     blurb: "A fictional vinyl and gramophone brand, built around a horizontal carousel you spin through with your cursor." },
-  { n: "04", title: "resonance", meta: "TouchDesigner · Audiovisual", year: "2025",
+  { n: "05", title: "resonance", meta: "TouchDesigner · Audiovisual", year: "2025",
     blurb: "Audio-reactive visuals driven by per-band energy envelopes, where the geometry breathes with the track." },
 ];
 
 function ProjectRow({ p, last, stacked }) {
   const [hover, setHover] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        display: "grid",
-        gridTemplateColumns: stacked ? "auto 1fr" : "auto 1fr auto",
-        gap: stacked ? "10px 16px" : "clamp(16px, 4vw, 48px)",
-        alignItems: "baseline",
-        padding: stacked ? "26px 0" : "38px 0",
-        borderBottom: last ? "none" : `1px solid ${hover ? BLUSH : "rgba(74,64,70,0.1)"}`,
-        cursor: "pointer",
-        transition: "border-color 300ms ease",
-        textAlign: "left",
-      }}
-    >
+  const rowStyle = {
+    display: "grid",
+    gridTemplateColumns: stacked ? "auto 1fr" : "auto 1fr auto",
+    gap: stacked ? "10px 16px" : "clamp(16px, 4vw, 48px)",
+    alignItems: "baseline",
+    padding: stacked ? "26px 0" : "38px 0",
+    borderBottom: last ? "none" : `1px solid ${hover ? BLUSH : "rgba(74,64,70,0.1)"}`,
+    cursor: "pointer",
+    transition: "border-color 300ms ease",
+    textAlign: "left",
+    textDecoration: "none",
+    color: "inherit",
+  };
+  const inner = (
+    <>
       <span style={{ fontFamily: BODY, fontSize: 12, letterSpacing: "0.16em", color: hover ? PINK : MUTED, transition: "color 300ms ease" }}>{p.n}</span>
       <div>
         <h3 style={{ fontFamily: DISPLAY, fontSize: "clamp(24px, 4.4vw, 48px)", fontWeight: 600, lineHeight: 1.08, letterSpacing: "-0.02em", margin: 0, color: hover ? PINK : INK, transition: "color 300ms ease" }}>
@@ -1091,8 +1092,11 @@ function ProjectRow({ p, last, stacked }) {
         <div style={{ letterSpacing: "0.05em" }}>{p.meta}</div>
         <div style={{ color: hover ? PINK : MUTED, transition: "color 300ms ease" }}>{p.year}</div>
       </div>
-    </div>
+    </>
   );
+  const on = { onMouseEnter: () => setHover(true), onMouseLeave: () => setHover(false) };
+  if (p.href) return <a href={p.href} style={rowStyle} {...on}>{inner}</a>;
+  return <div style={rowStyle} {...on}>{inner}</div>;
 }
 
 function Work() {
