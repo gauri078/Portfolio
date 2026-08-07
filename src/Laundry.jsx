@@ -13,9 +13,9 @@ import SiteFooter from "./SiteFooter";
  */
 
 /* ============================ PALETTE ============================ */
-const PAPER = "#FAF6F2";
-const INK = "#211A21";
-const MUTED = "#6E626C";
+const PAPER = "#FCFCFC";   // matches Portfolio.jsx exactly
+const INK = "#3E2430";     // matches Portfolio.jsx (deep wine)
+const MUTED = "#8A6F7C";    // matches Portfolio.jsx
 
 /* per case study */
 const ACCENT = "#4C5FA8"; // washed indigo
@@ -25,8 +25,8 @@ const DISPLAY = "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif";
 const BODY = "'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif";
 /* the footer is shared with the main site, so it keeps the site's own type */
 const SITE_DISPLAY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
-const SITE_INK = "#3E2430";
-const SITE_PAPER = "#FCFCFC";
+const SITE_INK = INK;
+const SITE_PAPER = PAPER;
 
 /* ============================= ASSETS ============================ */
 const IMG = {
@@ -388,6 +388,13 @@ function P({ children, muted = false, style }) {
   );
 }
 
+/**
+ * Every section carries its own top breathing room by default, so two
+ * sections that sit back to back with no thread between them never look
+ * crammed. Where a ThreadRule precedes a Section the two margins collapse
+ * harmlessly. Callers that must sit flush (a bleed image, a caption strip,
+ * the title) pass their own paddingTop to override.
+ */
 function Section({ children, id, style }) {
   return (
     <section
@@ -395,7 +402,7 @@ function Section({ children, id, style }) {
       style={{
         maxWidth: 1180,
         margin: "0 auto",
-        padding: "0 clamp(20px,5vw,64px)",
+        padding: "clamp(60px,8vw,108px) clamp(20px,5vw,64px) 0",
         ...style,
       }}
     >
@@ -478,7 +485,7 @@ function Bleed({ src, alt, caption, height = "clamp(280px,52vw,620px)" }) {
         }}
       />
       {caption ? (
-        <Section style={{ marginTop: 0 }}>
+        <Section style={{ paddingTop: 0, marginTop: 0 }}>
           <Caption>{caption}</Caption>
         </Section>
       ) : null}
@@ -866,20 +873,20 @@ function Walkthrough() {
  * "affected stakeholders" inside the primary branch.
  */
 
-const CARD_W = 280;
-const CARD_H = 200;
-const CHIP_H = 100;
+const CARD_W = 310;
+const CARD_H = 220;
+const CHIP_H = 108;
 
-const SH_ROOT = { cx: 1420, top: 40, w: 560, h: 110, label: "laundry system" };
+const SH_ROOT = { cx: 1575, top: 40, w: 560, h: 110, label: "laundry system" };
 
 const SH_TIERS = [
   {
     key: "tertiary",
     label: "tertiary stakeholders",
-    cx: 470,
+    cx: 525,
     children: [
       {
-        cx: 160,
+        cx: 175,
         title: ["parents and guardians"],
         role: [
           "indirectly concerned with the",
@@ -889,7 +896,7 @@ const SH_TIERS = [
         ],
       },
       {
-        cx: 470,
+        cx: 525,
         title: ["resource suppliers"],
         role: [
           "provide essentials like detergent,",
@@ -899,7 +906,7 @@ const SH_TIERS = [
         ],
       },
       {
-        cx: 780,
+        cx: 875,
         title: ["maintenance"],
         role: [
           "responsible for repairing and",
@@ -913,20 +920,20 @@ const SH_TIERS = [
   {
     key: "primary",
     label: "primary stakeholders",
-    cx: 1420,
+    cx: 1575,
     children: [
       {
-        cx: 1110,
+        cx: 1225,
         title: ["resident assistants", "and student pocs"],
         role: ["report issues upward when", "something breaks."],
       },
       {
-        cx: 1420,
+        cx: 1575,
         chip: true,
         title: ["affected stakeholders"],
         children: [
           {
-            cx: 1110,
+            cx: 1225,
             title: ["students"],
             role: [
               "use the laundry service, follow",
@@ -935,7 +942,7 @@ const SH_TIERS = [
             ],
           },
           {
-            cx: 1420,
+            cx: 1575,
             title: ["guests and faculty"],
             role: [
               "occasionally use the service,",
@@ -944,7 +951,7 @@ const SH_TIERS = [
             ],
           },
           {
-            cx: 1730,
+            cx: 2275,
             title: ["wardens"],
             role: [
               "oversee the system, approve",
@@ -955,7 +962,7 @@ const SH_TIERS = [
         ],
       },
       {
-        cx: 1730,
+        cx: 1925,
         title: ["laundry staff"],
         role: [
           "handle collection, logging,",
@@ -968,10 +975,10 @@ const SH_TIERS = [
   {
     key: "secondary",
     label: "secondary stakeholders",
-    cx: 2370,
+    cx: 2625,
     children: [
       {
-        cx: 2060,
+        cx: 2275,
         title: ["warden"],
         role: [
           "supervises hostel operations,",
@@ -980,7 +987,7 @@ const SH_TIERS = [
         ],
       },
       {
-        cx: 2370,
+        cx: 2625,
         title: ["administration"],
         role: [
           "sets overall laundry policy,",
@@ -990,7 +997,7 @@ const SH_TIERS = [
         ],
       },
       {
-        cx: 2680,
+        cx: 2975,
         title: ["vendors"],
         role: [
           "supply detergent, tags and",
@@ -1031,7 +1038,7 @@ function elbow(px, cx, railY, childTop, r = 20) {
 function ShCard({ node, top }) {
   const x = node.cx - CARD_W / 2;
   const titleLines = node.title;
-  const titleTop = top + 40;
+  const titleTop = top + 46;
   return (
     <g>
       <rect
@@ -1049,11 +1056,11 @@ function ShCard({ node, top }) {
         <text
           key={i}
           x={node.cx}
-          y={titleTop + i * 26}
+          y={titleTop + i * 30}
           textAnchor="middle"
           fontFamily={DISPLAY}
           fontWeight="600"
-          fontSize="20"
+          fontSize="24"
           fill={ACCENT}
         >
           {line}
@@ -1063,10 +1070,10 @@ function ShCard({ node, top }) {
         <text
           key={i}
           x={node.cx}
-          y={titleTop + titleLines.length * 26 + 22 + i * 22}
+          y={titleTop + titleLines.length * 30 + 26 + i * 25}
           textAnchor="middle"
           fontFamily={BODY}
-          fontSize="14"
+          fontSize="17"
           fill={MUTED}
         >
           {line}
@@ -1076,7 +1083,7 @@ function ShCard({ node, top }) {
   );
 }
 
-function ShChip({ cx, top, w, h, label, size = 21 }) {
+function ShChip({ cx, top, w, h, label, size = 26 }) {
   return (
     <g>
       <rect x={cx - w / 2} y={top} width={w} height={h} rx={h / 2 > 26 ? 16 : 8} fill={ACCENT} />
@@ -1110,7 +1117,7 @@ function StakeholderMap() {
 
   return (
     <svg
-      viewBox="0 0 2840 1380"
+      viewBox="0 0 3320 1400"
       role="img"
       aria-label="Stakeholder map of the hostel laundry system. The laundry system branches into tertiary, primary and secondary stakeholders. Tertiary holds parents and guardians, resource suppliers and maintenance. Primary holds resident assistants and student POCs, laundry staff, and an affected stakeholders group containing students, guests and faculty, and wardens. Secondary holds the warden, administration and vendors."
       style={{ width: "100%", minWidth: 900, display: "block" }}
@@ -1130,7 +1137,7 @@ function StakeholderMap() {
       </defs>
 
       {/* root */}
-      <ShChip cx={SH_ROOT.cx} top={SH_ROOT.top} w={SH_ROOT.w} h={SH_ROOT.h} label={SH_ROOT.label} size={34} />
+      <ShChip cx={SH_ROOT.cx} top={SH_ROOT.top} w={SH_ROOT.w} h={SH_ROOT.h} label={SH_ROOT.label} size={40} />
 
       {/* root to tiers */}
       <path d={`M ${SH_ROOT.cx} ${SH_ROOT.top + SH_ROOT.h} V ${MID_TIER - 20}`} style={stub} />
@@ -1140,7 +1147,7 @@ function StakeholderMap() {
 
       {SH_TIERS.map((t) => (
         <g key={t.key}>
-          <ShChip cx={t.cx} top={ROW_TIER} w={420} h={CHIP_H} label={t.label} />
+          <ShChip cx={t.cx} top={ROW_TIER} w={470} h={CHIP_H} label={t.label} />
 
           {/* tier to its children */}
           <path d={`M ${t.cx} ${ROW_TIER + CHIP_H} V ${MID_CARD - 20}`} style={stub} />
@@ -1150,7 +1157,7 @@ function StakeholderMap() {
 
           {t.children.map((c) =>
             c.chip ? (
-              <ShChip key={c.cx} cx={c.cx} top={ROW_CARD} w={CARD_W} h={CHIP_H} label={c.title[0]} size={19} />
+              <ShChip key={c.cx} cx={c.cx} top={ROW_CARD} w={CARD_W} h={CHIP_H} label={c.title[0]} size={23} />
             ) : (
               <ShCard key={c.cx} node={c} top={ROW_CARD} />
             )
@@ -1192,12 +1199,20 @@ function Stakeholders() {
       <div
         style={{
           marginTop: 48,
+          marginLeft: "calc(50% - 50vw)",
+          marginRight: "calc(50% - 50vw)",
+          width: "100vw",
+          maxWidth: "100vw",
+          padding: "0 clamp(20px,5vw,64px)",
+          boxSizing: "border-box",
           overflowX: "auto",
           WebkitOverflowScrolling: "touch",
-          paddingBottom: 8,
+          paddingBottom: 10,
         }}
       >
-        <StakeholderMap />
+        <div style={{ maxWidth: 2000, margin: "0 auto" }}>
+          <StakeholderMap />
+        </div>
       </div>
       <Caption>
         Stakeholder map. Drag sideways on a narrow screen. Everyone affected sits nested inside the
@@ -1763,7 +1778,7 @@ function Gigamap() {
         />
       </div>
 
-      <Section style={{ marginTop: 18 }}>
+      <Section style={{ paddingTop: 18, marginTop: 0 }}>
         <Caption>
           Untangling the Knots. Stakeholders branch out on the left, the overloaded laundry system
           runs through the centre as roots, trunk and branches, and the leverage points sit on the
@@ -2347,27 +2362,22 @@ export default function Laundry() {
       <Nav />
       <Title />
       <Intro />
-      <ThreadRule />
       <Walkthrough />
-      <ThreadRule flip />
-      <Stakeholders />
       <ThreadRule />
+      <Stakeholders />
       <Clusters />
       <SystemMap />
       <ThreadRule flip />
       <SitesAndLeverage />
-      <ThreadRule />
       <Gigamap />
-      <ThreadRule flip />
+      <ThreadRule />
       <IdeaPool />
       <Shortlist />
-      <ThreadRule />
       <Prototype />
       <TagDesign />
       <ThreadRule flip />
       <Concerns />
       <Reflection />
-      <ThreadRule />
       <FullDeck />
 
       <SiteFooter
