@@ -603,6 +603,30 @@ function NavItem({ label, href, target, compact }) {
 
 function Nav() {
   const { isPhone } = useViewport();
+  const [shown, setShown] = useState(true);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    lastY.current = window.scrollY;
+    let ticking = false;
+    const update = () => {
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+      if (y < 80) setShown(true);
+      else if (Math.abs(delta) > 6) setShown(delta < 0); // up reveals, down hides
+      lastY.current = y;
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <nav
       style={{
@@ -615,6 +639,9 @@ function Nav() {
         alignItems: "center",
         justifyContent: isPhone ? "space-between" : "flex-end",
         gap: isPhone ? 12 : 26,
+        transform: shown ? "translateY(0)" : "translateY(-160%)",
+        transition: "transform 340ms cubic-bezier(.2,.8,.2,1)",
+        willChange: "transform",
       }}
     >
       <NavItem label="gauri" href="/" compact={isPhone} />
