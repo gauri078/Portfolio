@@ -20,6 +20,7 @@ const MUTED = "#8A6F7C";    // matches Portfolio.jsx
 /* per case study */
 const ACCENT = "#4C5FA8"; // washed indigo
 const TINT = "#DEE1EC"; // pale indigo hairline
+const FRAME = "#EDEFF6"; // soft indigo wash, gigamap panel
 
 const DISPLAY = "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif";
 const BODY = "'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif";
@@ -1208,16 +1209,26 @@ function Stakeholders() {
           overflowX: "auto",
           WebkitOverflowScrolling: "touch",
           paddingBottom: 10,
+          textAlign: "center",
         }}
       >
-        <div style={{ maxWidth: 2000, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1600, minWidth: 760, margin: "0 auto", display: "inline-block", width: "100%" }}>
           <StakeholderMap />
+          <div
+            style={{
+              fontFamily: BODY,
+              fontSize: 13.5,
+              color: MUTED,
+              marginTop: 12,
+              lineHeight: 1.6,
+              textAlign: "left",
+            }}
+          >
+            Stakeholder map. Drag sideways on a narrow screen. Everyone affected sits nested inside
+            the primary branch, since they experience the system rather than run it.
+          </div>
         </div>
       </div>
-      <Caption>
-        Stakeholder map. Drag sideways on a narrow screen. Everyone affected sits nested inside the
-        primary branch, since they experience the system rather than run it.
-      </Caption>
     </Section>
   );
 }
@@ -1669,16 +1680,25 @@ function Gigamap() {
     drag.current.active = false;
   };
 
-  const btn = {
-    fontFamily: BODY,
-    fontSize: 13.5,
-    padding: "9px 16px",
-    background: "none",
-    border: `1px solid ${TINT}`,
-    borderRadius: 3,
-    color: INK,
+  // Round icon buttons that float over the map. Filled accent so they read
+  // as controls at a glance rather than getting lost against the diagram.
+  const iconBtn = {
+    width: 44,
+    height: 44,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: DISPLAY,
+    fontWeight: 600,
+    fontSize: 22,
+    lineHeight: 1,
+    background: ACCENT,
+    color: "#fff",
+    border: "none",
+    borderRadius: 10,
     cursor: "pointer",
-    textTransform: "lowercase",
+    boxShadow: "0 4px 14px rgba(76,95,168,0.32)",
+    transition: "transform 160ms ease, background 200ms ease",
   };
 
   return (
@@ -1705,7 +1725,7 @@ function Gigamap() {
             gap: "1px",
             background: TINT,
             border: `1px solid ${TINT}`,
-            margin: "40px 0 34px",
+            margin: "40px 0 0",
           }}
         >
           {[
@@ -1721,64 +1741,121 @@ function Gigamap() {
             </div>
           ))}
         </div>
-
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <button style={btn} onClick={() => setZoom((z) => clamp(z + 0.5, 1, 4))}>
-            zoom in
-          </button>
-          <button style={btn} onClick={() => setZoom((z) => clamp(z - 0.5, 1, 4))}>
-            zoom out
-          </button>
-          <a
-            href={IMG.gigamap}
-            target="_blank"
-            rel="noreferrer"
-            style={{ ...btn, textDecoration: "none" }}
-          >
-            open full size
-          </a>
-          <span style={{ fontFamily: BODY, fontSize: 13, color: MUTED }}>
-            drag to move across the map
-          </span>
-        </div>
       </Section>
 
+      {/* Full-bleed framed map with the controls floating over the top right */}
       <div
-        ref={wrap}
-        onMouseDown={onDown}
-        onMouseMove={onMove}
-        onMouseUp={onUp}
-        onMouseLeave={onUp}
-        onTouchStart={onDown}
-        onTouchMove={onMove}
-        onTouchEnd={onUp}
         style={{
-          marginTop: 24,
-          overflowX: "auto",
-          overflowY: "hidden",
-          cursor: "grab",
-          background: "#fff",
+          marginTop: 34,
+          background: FRAME,
           borderTop: `1px solid ${TINT}`,
           borderBottom: `1px solid ${TINT}`,
-          WebkitOverflowScrolling: "touch",
+          padding: "clamp(14px,2vw,28px) 0",
         }}
       >
-        <img
-          src={IMG.gigamap}
-          alt="Untangling the Knots, the gigamap of the hostel laundry system, showing stakeholders on the left, the central overloaded laundry system tree, and leverage points on the right."
-          draggable="false"
-          style={{
-            display: "block",
-            height: `clamp(300px, ${44 * zoom}vw, ${640 * zoom}px)`,
-            width: "auto",
-            maxWidth: "none",
-            transition: "height .45s cubic-bezier(.2,.8,.2,1)",
-            userSelect: "none",
-          }}
-        />
+        <div style={{ position: "relative", maxWidth: 1400, margin: "0 auto", padding: "0 clamp(14px,2vw,28px)" }}>
+          <div
+            ref={wrap}
+            onMouseDown={onDown}
+            onMouseMove={onMove}
+            onMouseUp={onUp}
+            onMouseLeave={onUp}
+            onTouchStart={onDown}
+            onTouchMove={onMove}
+            onTouchEnd={onUp}
+            style={{
+              overflowX: "auto",
+              overflowY: "hidden",
+              cursor: "grab",
+              background: "#FDF9F0",
+              border: `1px solid ${TINT}`,
+              borderRadius: 8,
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            <img
+              src={IMG.gigamap}
+              alt="Untangling the Knots, the gigamap of the hostel laundry system, showing stakeholders on the left, the central overloaded laundry system tree, and leverage points on the right."
+              draggable="false"
+              style={{
+                display: "block",
+                height: `clamp(300px, ${44 * zoom}vw, ${640 * zoom}px)`,
+                width: "auto",
+                maxWidth: "none",
+                transition: "height .45s cubic-bezier(.2,.8,.2,1)",
+                userSelect: "none",
+              }}
+            />
+          </div>
+
+          {/* floating controls */}
+          <div
+            style={{
+              position: "absolute",
+              top: "clamp(20px,3vw,40px)",
+              right: "clamp(24px,3vw,44px)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              zIndex: 3,
+            }}
+          >
+            <button
+              style={iconBtn}
+              aria-label="zoom in"
+              onClick={() => setZoom((z) => clamp(z + 0.5, 1, 4))}
+              onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              +
+            </button>
+            <button
+              style={iconBtn}
+              aria-label="zoom out"
+              onClick={() => setZoom((z) => clamp(z - 0.5, 1, 4))}
+              onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.92)")}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              {"\u2212"}
+            </button>
+          </div>
+
+          {/* hint + full size, sitting under the map on the frame */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 12,
+              marginTop: 14,
+            }}
+          >
+            <span style={{ fontFamily: BODY, fontSize: 13, color: MUTED }}>
+              drag to move across the map, or zoom with the buttons
+            </span>
+            <a
+              href={IMG.gigamap}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontFamily: BODY,
+                fontSize: 13.5,
+                color: ACCENT,
+                textDecoration: "none",
+                borderBottom: `1px solid ${ACCENT}66`,
+                paddingBottom: 2,
+              }}
+            >
+              open full size
+            </a>
+          </div>
+        </div>
       </div>
 
-      <Section style={{ paddingTop: 18, marginTop: 0 }}>
+      <Section style={{ paddingTop: 22, marginTop: 0 }}>
         <Caption>
           Untangling the Knots. Stakeholders branch out on the left, the overloaded laundry system
           runs through the centre as roots, trunk and branches, and the leverage points sit on the
@@ -2266,8 +2343,8 @@ function FullDeck() {
           borderLeft: `3px solid ${ACCENT}`,
           padding: "clamp(30px,4vw,48px)",
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
-          gap: "clamp(24px,4vw,48px)",
+          gridTemplateColumns: "minmax(0,1fr) auto",
+          gap: "clamp(24px,4vw,56px)",
           alignItems: "center",
         }}
       >
@@ -2281,7 +2358,15 @@ function FullDeck() {
           </P>
         </div>
 
-        <div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            textAlign: "right",
+          }}
+        >
           <a
             href={IMG.pdf}
             target="_blank"
