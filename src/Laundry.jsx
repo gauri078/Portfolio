@@ -497,6 +497,37 @@ function Bleed({ src, alt, caption, height = "clamp(280px,52vw,620px)" }) {
 /* ============================== NAV =============================== */
 
 function Nav() {
+  const [shown, setShown] = useState(true);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    lastY.current = window.scrollY;
+    let ticking = false;
+
+    const update = () => {
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+      // Near the very top, always show. Ignore tiny jitters.
+      if (y < 80) {
+        setShown(true);
+      } else if (Math.abs(delta) > 6) {
+        setShown(delta < 0); // scrolling up reveals, down hides
+      }
+      lastY.current = y;
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const link = {
     fontFamily: BODY,
     fontSize: 15,
@@ -507,8 +538,10 @@ function Nav() {
   return (
     <nav
       style={{
-        position: "sticky",
+        position: "fixed",
         top: 0,
+        left: 0,
+        right: 0,
         zIndex: 40,
         display: "flex",
         justifyContent: "flex-end",
@@ -516,6 +549,9 @@ function Nav() {
         padding: "22px clamp(20px,5vw,64px)",
         background: `${PAPER}f2`,
         backdropFilter: "blur(8px)",
+        transform: shown ? "translateY(0)" : "translateY(-100%)",
+        transition: "transform 340ms cubic-bezier(.2,.8,.2,1)",
+        willChange: "transform",
       }}
     >
       <a href="/" style={link}>
@@ -559,7 +595,7 @@ function Title() {
   ];
 
   return (
-    <Section style={{ paddingTop: "clamp(48px,9vw,110px)" }}>
+    <Section style={{ paddingTop: "clamp(96px,9vw,130px)" }}>
       <Eyebrow>systems design</Eyebrow>
 
       <Typer
