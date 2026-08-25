@@ -1059,18 +1059,27 @@ const PROJECTS = [
     blurb: "A hostel laundry system mapped down to its roots, then rebuilt around RFID tagging and a rule that enforces itself." },
   { n: "03", title: "tapin", href: "/tapin", meta: "UI/UX · Product design", year: "2025",
     blurb: "A collaborative tool that gets every student to contribute in group projects, taken from classmate interviews to a hi-fi prototype in two weeks." },
+  { n: "04", title: "stilt", meta: "UI/UX · Product design", year: "2025", status: "launching september 2025",
+    blurb: "A product built end to end, launching this september. The case study goes live once it ships." },
+  { n: "05", title: "borderplus", meta: "UI/UX · Product design", year: "2025", status: "under nda",
+    blurb: "Product design work covered by an nda, so the details stay off the site. Happy to talk about it in conversation." },
 ];
 
 function ProjectRow({ p, last, stacked }) {
   const [hover, setHover] = useState(false);
+  // A row is "openable" only if it links somewhere. Status rows (stilt, borderplus)
+  // have no href, so they read as present-but-not-clickable: default cursor,
+  // no pink hover cue, and a small status pill beside the title.
+  const openable = Boolean(p.href);
+  const active = openable && hover;
   const rowStyle = {
     display: "grid",
     gridTemplateColumns: stacked ? "auto 1fr" : "auto 1fr auto",
     gap: stacked ? "10px 16px" : "clamp(16px, 4vw, 48px)",
     alignItems: "baseline",
     padding: stacked ? "26px 0" : "38px 0",
-    borderBottom: last ? "none" : `1px solid ${hover ? BLUSH : "rgba(74,64,70,0.1)"}`,
-    cursor: "pointer",
+    borderBottom: last ? "none" : `1px solid ${active ? BLUSH : "rgba(74,64,70,0.1)"}`,
+    cursor: openable ? "pointer" : "default",
     transition: "border-color 300ms ease",
     textAlign: "left",
     textDecoration: "none",
@@ -1078,23 +1087,30 @@ function ProjectRow({ p, last, stacked }) {
   };
   const inner = (
     <>
-      <span style={{ fontFamily: BODY, fontSize: 12, letterSpacing: "0.16em", color: hover ? PINK : MUTED, transition: "color 300ms ease" }}>{p.n}</span>
+      <span style={{ fontFamily: BODY, fontSize: 12, letterSpacing: "0.16em", color: active ? PINK : MUTED, transition: "color 300ms ease" }}>{p.n}</span>
       <div>
-        <h3 style={{ fontFamily: DISPLAY, fontSize: "clamp(24px, 4.4vw, 48px)", fontWeight: 600, lineHeight: 1.08, letterSpacing: "-0.02em", margin: 0, color: hover ? PINK : INK, transition: "color 300ms ease" }}>
-          {p.title}
-        </h3>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <h3 style={{ fontFamily: DISPLAY, fontSize: "clamp(24px, 4.4vw, 48px)", fontWeight: 600, lineHeight: 1.08, letterSpacing: "-0.02em", margin: 0, color: active ? PINK : INK, transition: "color 300ms ease" }}>
+            {p.title}
+          </h3>
+          {p.status && (
+            <span style={{ fontFamily: BODY, fontWeight: 400, fontSize: 11.5, letterSpacing: "0.04em", textTransform: "lowercase", color: DEEP, background: BLUSH, padding: "5px 12px", borderRadius: 999, whiteSpace: "nowrap", transform: "translateY(-2px)" }}>
+              {p.status}
+            </span>
+          )}
+        </div>
         <p style={{ fontFamily: BODY, fontWeight: 300, fontSize: "clamp(14px, 1.5vw, 16px)", lineHeight: 1.7, color: MUTED, margin: "12px 0 0", maxWidth: 520 }}>
           {p.blurb}
         </p>
       </div>
       <div style={{ gridColumn: stacked ? "2" : "auto", textAlign: stacked ? "left" : "right", fontFamily: BODY, fontWeight: 300, fontSize: 12, lineHeight: 1.8, color: MUTED, whiteSpace: "nowrap", marginTop: stacked ? 4 : 0 }}>
         <div style={{ letterSpacing: "0.05em" }}>{p.meta}</div>
-        <div style={{ color: hover ? PINK : MUTED, transition: "color 300ms ease" }}>{p.year}</div>
+        <div style={{ color: active ? PINK : MUTED, transition: "color 300ms ease" }}>{p.year}</div>
       </div>
     </>
   );
   const on = { onMouseEnter: () => setHover(true), onMouseLeave: () => setHover(false) };
-  if (p.href) return <a href={p.href} style={rowStyle} {...on}>{inner}</a>;
+  if (openable) return <a href={p.href} style={rowStyle} {...on}>{inner}</a>;
   return <div style={rowStyle} {...on}>{inner}</div>;
 }
 
