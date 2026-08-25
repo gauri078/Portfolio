@@ -1059,7 +1059,7 @@ const PROJECTS = [
     blurb: "A hostel laundry system mapped down to its roots, then rebuilt around RFID tagging and a rule that enforces itself." },
   { n: "03", title: "tapin", href: "/tapin", meta: "UI/UX · Product design", year: "2025",
     blurb: "A collaborative tool that gets every student to contribute in group projects, taken from classmate interviews to a hi-fi prototype in two weeks." },
-  { n: "04", title: "stilt", meta: "UI/UX · Product design", year: "2025", status: "launching september 2025",
+  { n: "04", title: "stilt", meta: "UI/UX · Product design", year: "2026", status: "launching september 2026",
     blurb: "A product built end to end, launching this september. The case study goes live once it ships." },
   { n: "05", title: "borderplus", meta: "UI/UX · Product design", year: "2025", status: "under nda",
     blurb: "Product design work covered by an nda, so the details stay off the site. Happy to talk about it in conversation." },
