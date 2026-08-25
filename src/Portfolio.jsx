@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import DriverBen from "./DriverBen";
 import Laundry from "./Laundry";
+import TapIn from "./TapIn";
 import { FOOTER_IMG } from "./footerImage";
 
 /**
@@ -1056,6 +1057,8 @@ const PROJECTS = [
     blurb: "A Hindi diary film on the barriers facing female driver trainees, built from field research, empathy mapping and speculative scenarios." },
   { n: "02", title: "untangling the knots", href: "/laundry", meta: "Systems design · Gigamap", year: "2025",
     blurb: "A hostel laundry system mapped down to its roots, then rebuilt around RFID tagging and a rule that enforces itself." },
+  { n: "03", title: "tapin", href: "/tapin", meta: "UI/UX · Product design", year: "2025",
+    blurb: "A collaborative tool that gets every student to contribute in group projects, taken from classmate interviews to a hi-fi prototype in two weeks." },
 ];
 
 function ProjectRow({ p, last, stacked }) {
@@ -1248,5 +1251,6 @@ export default function App() {
   const path = typeof window !== "undefined" ? window.location.pathname.replace(/\/+$/, "") : "";
   if (path === "/driverben") return <DriverBen />;
   if (path === "/laundry") return <Laundry />;
+  if (path === "/tapin") return <TapIn />;
   return <Site />;
 }
