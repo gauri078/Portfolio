@@ -1,33 +1,33 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import SiteFooter from "./SiteFooter";
 
 /*
-  TapIn.jsx - clean editorial case study
+  TapIn.jsx
   A collaborative tool that helps college students navigate group projects
   with more clarity, connection, and confidence. Built end to end in two weeks
   for Semester 6, Interaction Design, mentored by Parag Sarma.
 
-  Shell constants match Portfolio.jsx. The accent family is sage green.
-  Typer uses the same charFill/charAccent ripple animation as the homepage.
+  Shell constants match Portfolio.jsx exactly so the background is seamless
+  across the whole site. Only the accent family shifts for this project:
+  a sage green sampled from the deck's own geometry.
 */
 
-/* ---- shell constants (shared across the site) ---- */
-const PAPER = "#FCFCFC";
-const INK = "#3E2430";
+/* ---- shell constants (fixed across the site) ---- */
+const PAPER = "#FCFCFC"; // matches Portfolio.jsx
+const INK = "#3E2430"; // deep wine
 const MUTED = "#8A6F7C";
 
 /* ---- tapin accent family (sage green) ---- */
-const ACCENT = "#6E7E3D";
-const TINT = "#C3CE93";
-const FRAME = "#EEF1DF";
-const LINE = "#E2E6CD";
+const ACCENT = "#6E7E3D"; // sage, deepened for text and headings
+const TINT = "#C3CE93"; // soft sage, for pills and fills
+const FRAME = "#EEF1DF"; // palest wash, for panels and screen backdrops
+const LINE = "#E2E6CD"; // hairline on the wash
 
 const SANS = "'Poppins', system-ui, -apple-system, sans-serif";
-const COL = 820; // narrower editorial column
 
-/* ================================================================= */
-/* viewport                                                           */
-/* ================================================================= */
+/* ------------------------------------------------------------------ */
+/* viewport                                                            */
+/* ------------------------------------------------------------------ */
 function useViewport() {
   const [w, setW] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1200
@@ -40,207 +40,73 @@ function useViewport() {
   return { w, isPhone: w < 640, isTablet: w >= 640 && w < 1024 };
 }
 
-/* ================================================================= */
-/* typer: charFill / charAccent ripple (matches homepage)             */
-/* ================================================================= */
-
-const ALL_VARIATIONS = [
-  "charFill",
-  "charInverse",
-  "charAccent",
-  "charAccentInverse",
-  "charAccentFill",
-  "charBorder",
-];
-
-const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
-
-function bezierEase(x, x1, y1, x2, y2, eps = 1e-6) {
-  const bx = (t) => 3 * (1 - t) ** 2 * t * x1 + 3 * (1 - t) * t ** 2 * x2 + t ** 3;
-  const by = (t) => 3 * (1 - t) ** 2 * t * y1 + 3 * (1 - t) * t ** 2 * y2 + t ** 3;
-  const bxD = (t) =>
-    3 * (1 - t) ** 2 * x1 + 6 * (1 - t) * t * (x2 - x1) + 3 * t ** 2 * (1 - x2);
-  let t = x;
-  for (let i = 0; i < 8; i++) {
-    const dx = bx(t) - x;
-    if (Math.abs(dx) < eps) return by(t);
-    const d = bxD(t);
-    if (Math.abs(d) < 1e-6) break;
-    t -= dx / d;
-  }
-  let lo = 0;
-  let hi = 1;
-  t = x;
-  for (let i = 0; i < 30; i++) {
-    const cx = bx(t);
-    if (Math.abs(cx - x) < eps) return by(t);
-    if (cx < x) lo = t;
-    else hi = t;
-    t = (lo + hi) / 2;
-  }
-  return by(t);
-}
-
-function TyperStyles() {
-  const css = `
-[data-typer]{
-  --typer-fg:${INK};
-  --typer-bg:${PAPER};
-  --typer-accent:${ACCENT};
-  --typer-accent-ink:${PAPER};
-  --typer-radius:5px;
-}
-[data-typer][data-typer-state="initial"]{opacity:0;}
-[data-typer][data-typer-state="running"]{opacity:1;}
-[data-typer] .word{white-space:pre;display:inline;}
-[data-typer] .word .char{box-sizing:content-box;display:inline-block;color:var(--typer-fg);background:transparent;transition:none;}
-[data-typer] .word .char.charInit{color:transparent;}
-[data-typer] .word .char.charFill{color:var(--typer-bg);background:var(--typer-fg);border-radius:var(--typer-radius);}
-[data-typer] .word .char.charFill:has(+ .charFill){border-top-right-radius:0;border-bottom-right-radius:0;}
-[data-typer] .word .char.charFill + .charFill{border-radius:0;}
-[data-typer] .word .char.charFill + .charFill:last-child,
-[data-typer] .word .char.charFill + .charFill:has(+ :not(.charFill)){border-radius:0 var(--typer-radius) var(--typer-radius) 0;}
-[data-typer] .word .char.charInverse{color:var(--typer-bg);background:var(--typer-fg);}
-[data-typer] .word .char.charAccent{color:var(--typer-accent);background:transparent;}
-[data-typer] .word .char.charAccentInverse{color:var(--typer-accent-ink);background:var(--typer-accent);border-radius:var(--typer-radius);}
-[data-typer] .word .char.charAccentInverse:has(+ .charAccentInverse){border-top-right-radius:0;border-bottom-right-radius:0;}
-[data-typer] .word .char.charAccentInverse + .charAccentInverse{border-radius:0;}
-[data-typer] .word .char.charAccentInverse + .charAccentInverse:last-child,
-[data-typer] .word .char.charAccentInverse + .charAccentInverse:has(+ :not(.charAccentInverse)){border-radius:0 var(--typer-radius) var(--typer-radius) 0;}
-[data-typer] .word .char.charAccentFill{color:var(--typer-accent);background:var(--typer-accent);}
-[data-typer] .word .char.charBorder{position:relative;color:var(--typer-fg);}
-[data-typer] .word .char.charBorder::after{content:"";display:inline-block;position:absolute;inset:0;border:1px solid var(--typer-accent);border-radius:var(--typer-radius);}
-[data-typer] .word .char.charBorder:has(+ .charBorder)::after{border-right:1px solid transparent;border-top-right-radius:0;border-bottom-right-radius:0;}
-[data-typer] .word .char.charBorder + .charBorder::after{border-left:1px solid transparent;border-right:1px solid transparent;border-radius:0;}
-[data-typer] .word .char.charBorder + .charBorder:last-child::after,
-[data-typer] .word .char.charBorder + .charBorder:has(+ :not(.charBorder))::after{border-left:1px solid transparent;border-right:1px solid var(--typer-accent);border-radius:0 var(--typer-radius) var(--typer-radius) 0;}
-@media (prefers-reduced-motion: reduce){
-  [data-typer][data-typer-state="initial"]{opacity:1;}
-  [data-typer] .word .char.charInit{color:var(--typer-fg);}
-}
-`;
-  return <style dangerouslySetInnerHTML={{ __html: css }} />;
-}
-
-function Typer({
-  text,
-  as: Tag = "span",
-  fps = 22,
-  cycles = 4,
-  window: win = 0.42,
-  threshold = 0.3,
-  once = false,
-  style,
-  className,
-}) {
+/* ------------------------------------------------------------------ */
+/* typer, character reveal on scroll into view                        */
+/* ------------------------------------------------------------------ */
+function Typer({ text, size, weight = 600, color = INK, as = "h2", once = false }) {
   const ref = useRef(null);
-  const [frame, setFrame] = useState(-1);
-
-  const glyphs = useMemo(() => Array.from(text), [text]);
-
-  const starts = useMemo(() => {
-    const n = glyphs.length;
-    return glyphs.map((_, i) => {
-      const x = n <= 1 ? 0 : i / (n - 1);
-      return bezierEase(x, 0.45, 0, 0.55, 1) * (1 - win);
-    });
-  }, [glyphs, win]);
-
-  const totalFrames = useMemo(() => Math.ceil((1 + 0.15) * fps * 1.4), [fps]);
+  const [on, setOn] = useState(false);
+  const played = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    if (reduce) return;
-
-    let interval = null;
-    const stop = () => {
-      if (interval) {
-        clearInterval(interval);
-        interval = null;
-      }
-    };
-    const run = () => {
-      stop();
-      setFrame(0);
-      let f = 0;
-      interval = setInterval(() => {
-        f += 1;
-        setFrame(f);
-        if (f >= totalFrames) stop();
-      }, 1000 / fps);
-    };
-
     const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          run();
-          if (once) io.disconnect();
-        } else if (!once) {
-          stop();
-          setFrame(-1);
-        }
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setOn(true);
+            played.current = true;
+          } else if (!once && !e.isIntersecting) {
+            if (played.current) setOn(false);
+          }
+        });
       },
-      { threshold }
+      { threshold: 0.35 }
     );
     io.observe(el);
-    return () => {
-      io.disconnect();
-      stop();
-    };
-  }, [fps, totalFrames, threshold, once]);
+    return () => io.disconnect();
+  }, [once]);
 
-  const progress = frame < 0 ? 0 : clamp(frame / totalFrames, 0, 1);
-
-  const words = [];
-  let cur = [];
-  glyphs.forEach((g, i) => {
-    if (g === " ") {
-      words.push({ chars: cur });
-      words.push({ space: true });
-      cur = [];
-    } else cur.push({ g, i });
-  });
-  if (cur.length) words.push({ chars: cur });
-
-  const classFor = (i) => {
-    if (frame < 0) return "charInit";
-    const local = clamp((progress - starts[i]) / win, 0, 1);
-    if (local <= 0) return "charInit";
-    if (local >= 1) return "";
-    const step = Math.floor(local * cycles);
-    return ALL_VARIATIONS[(i + step) % ALL_VARIATIONS.length];
-  };
-
+  const Tag = as;
+  const chars = Array.from(text);
   return (
     <Tag
       ref={ref}
-      data-typer=""
-      data-typer-state={frame < 0 ? "initial" : "running"}
-      className={className}
-      style={style}
+      style={{
+        margin: 0,
+        fontFamily: SANS,
+        fontWeight: weight,
+        fontSize: size,
+        lineHeight: 1.04,
+        letterSpacing: "-0.01em",
+        color,
+        textTransform: "lowercase",
+      }}
     >
-      {words.map((w, wi) =>
-        w.space ? (
-          <span key={`s${wi}`}> </span>
-        ) : (
-          <span className="word" key={`w${wi}`}>
-            {w.chars.map(({ g, i }) => (
-              <span key={i} className={`char ${classFor(i)}`}>
-                {g}
-              </span>
-            ))}
-          </span>
-        )
-      )}
+      {chars.map((c, i) => (
+        <span
+          key={i}
+          style={{
+            display: "inline-block",
+            whiteSpace: c === " " ? "pre" : "normal",
+            transform: on ? "translateY(0)" : "translateY(0.5em)",
+            opacity: on ? 1 : 0,
+            transition: `transform 520ms cubic-bezier(.2,.8,.2,1) ${
+              i * 26
+            }ms, opacity 520ms cubic-bezier(.2,.8,.2,1) ${i * 26}ms`,
+          }}
+        >
+          {c === " " ? "\u00A0" : c}
+        </span>
+      ))}
     </Tag>
   );
 }
 
-/* ================================================================= */
-/* nav: fixed, hides on scroll down, reveals on scroll up             */
-/* ================================================================= */
+/* ------------------------------------------------------------------ */
+/* nav, fixed, hides on scroll down, reveals on scroll up             */
+/* ------------------------------------------------------------------ */
 function NavItem({ label, href, compact }) {
   const [hover, setHover] = useState(false);
   return (
@@ -314,18 +180,17 @@ function Nav() {
   );
 }
 
-/* ================================================================= */
+/* ------------------------------------------------------------------ */
 /* layout primitives                                                  */
-/* ================================================================= */
-
-function Section({ children, id, wide, style }) {
+/* ------------------------------------------------------------------ */
+function Section({ children, id, style }) {
   return (
     <section
       id={id}
       style={{
-        maxWidth: wide ? 1180 : COL,
+        maxWidth: 1180,
         margin: "0 auto",
-        padding: `clamp(72px,10vw,128px) clamp(20px,5vw,64px) 0`,
+        padding: "clamp(60px,8vw,108px) clamp(20px,5vw,64px) 0",
         ...style,
       }}
     >
@@ -334,14 +199,15 @@ function Section({ children, id, wide, style }) {
   );
 }
 
-function ThreadRule() {
+function ThreadRule({ style }) {
   return (
     <div
       aria-hidden
       style={{
-        maxWidth: COL,
-        margin: "clamp(72px,10vw,128px) auto 0",
+        maxWidth: 1180,
+        margin: "clamp(64px,9vw,120px) auto 0",
         padding: "0 clamp(20px,5vw,64px)",
+        ...style,
       }}
     >
       <div style={{ height: 1, background: LINE }} />
@@ -349,22 +215,7 @@ function ThreadRule() {
   );
 }
 
-function SectionNumber({ n }) {
-  return (
-    <span
-      style={{
-        fontFamily: SANS,
-        fontSize: 13,
-        fontWeight: 600,
-        letterSpacing: "0.14em",
-        color: ACCENT,
-      }}
-    >
-      {String(n).padStart(2, "0")}
-    </span>
-  );
-}
-
+/* small eyebrow label above section headings */
 function Kicker({ children }) {
   return (
     <p
@@ -383,16 +234,18 @@ function Kicker({ children }) {
   );
 }
 
+/* body paragraph */
 function P({ children, style }) {
   return (
     <p
       style={{
-        margin: "0 0 20px",
+        margin: "0 0 18px",
         fontFamily: SANS,
-        fontSize: "clamp(16px, 1.2vw, 18px)",
-        lineHeight: 1.75,
+        fontSize: "clamp(15px,1.15vw,17px)",
+        lineHeight: 1.72,
         fontWeight: 400,
         color: INK,
+        maxWidth: 720,
         textTransform: "lowercase",
         ...style,
       }}
@@ -402,104 +255,42 @@ function P({ children, style }) {
   );
 }
 
-/* blockquote for key insights */
-function Quote({ children }) {
+function Pill({ children, solid }) {
   return (
-    <blockquote
+    <span
       style={{
-        margin: "32px 0",
-        paddingLeft: 20,
-        borderLeft: `3px solid ${TINT}`,
+        display: "inline-block",
         fontFamily: SANS,
-        fontSize: "clamp(18px, 1.6vw, 22px)",
-        lineHeight: 1.55,
+        fontSize: 13,
         fontWeight: 500,
-        color: ACCENT,
+        padding: "6px 14px",
+        borderRadius: 999,
         textTransform: "lowercase",
+        background: solid ? TINT : FRAME,
+        color: solid ? "#3f4a1c" : INK,
+        border: solid ? "none" : `0.5px solid ${LINE}`,
       }}
     >
       {children}
-    </blockquote>
+    </span>
   );
 }
 
-/* full-bleed image with caption */
-function FullImage({ src, alt, caption }) {
-  return (
-    <figure
-      style={{
-        margin: "40px 0",
-        padding: 0,
-      }}
-    >
-      <div
-        style={{
-          borderRadius: 12,
-          overflow: "hidden",
-          border: `1px solid ${LINE}`,
-          background: FRAME,
-        }}
-      >
-        {src ? (
-          <img
-            src={src}
-            alt={alt || caption || ""}
-            style={{ width: "100%", display: "block" }}
-            loading="lazy"
-          />
-        ) : (
-          <div
-            style={{
-              aspectRatio: "16/9",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span
-              style={{
-                fontFamily: SANS,
-                fontSize: 14,
-                color: ACCENT,
-                textTransform: "lowercase",
-              }}
-            >
-              {alt || "image placeholder"}
-            </span>
-          </div>
-        )}
-      </div>
-      {caption && (
-        <figcaption
-          style={{
-            fontFamily: SANS,
-            fontSize: 13,
-            fontStyle: "italic",
-            color: MUTED,
-            marginTop: 10,
-            textTransform: "lowercase",
-          }}
-        >
-          {caption}
-        </figcaption>
-      )}
-    </figure>
-  );
-}
-
-/* phone screen frame */
-function Phone({ src, label, w = 220 }) {
+/* ------------------------------------------------------------------ */
+/* phone screen frame, renders an image or a labelled placeholder     */
+/* ------------------------------------------------------------------ */
+function Phone({ src, label, w = 250 }) {
   return (
     <figure style={{ margin: 0, width: w, flex: "0 0 auto" }}>
       <div
         style={{
           width: w,
           aspectRatio: "390 / 844",
-          borderRadius: 24,
+          borderRadius: 26,
           overflow: "hidden",
           background: FRAME,
           border: `1px solid ${LINE}`,
-          boxShadow: "0 16px 36px -24px rgba(62,36,48,0.45)",
+          boxShadow: "0 18px 40px -28px rgba(62,36,48,0.5)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -515,12 +306,12 @@ function Phone({ src, label, w = 220 }) {
           <span
             style={{
               fontFamily: SANS,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 500,
               color: ACCENT,
               textTransform: "lowercase",
-              textAlign: "center",
-              padding: "0 16px",
+              textAlign: "left",
+              padding: "0 18px",
             }}
           >
             {label}
@@ -531,11 +322,10 @@ function Phone({ src, label, w = 220 }) {
         <figcaption
           style={{
             fontFamily: SANS,
-            fontSize: 12,
+            fontSize: 12.5,
             color: MUTED,
-            marginTop: 10,
+            marginTop: 12,
             textTransform: "lowercase",
-            textAlign: "center",
           }}
         >
           {label}
@@ -545,12 +335,13 @@ function Phone({ src, label, w = 220 }) {
   );
 }
 
+/* horizontal, scrollable row of phones */
 function PhoneRow({ children }) {
   return (
     <div
       style={{
         display: "flex",
-        gap: "clamp(16px,2.6vw,28px)",
+        gap: "clamp(18px,3vw,34px)",
         overflowX: "auto",
         paddingBottom: 8,
         margin: "8px 0 0",
@@ -562,82 +353,87 @@ function PhoneRow({ children }) {
   );
 }
 
-/* ================================================================= */
-/* page sections                                                      */
-/* ================================================================= */
-
-function Hero() {
+/* ------------------------------------------------------------------ */
+/* sections                                                           */
+/* ------------------------------------------------------------------ */
+function Title() {
   const { isPhone } = useViewport();
   return (
-    <header
+    <Section
       style={{
-        maxWidth: COL,
-        margin: "0 auto",
-        padding: `${isPhone ? "120px" : "clamp(160px, 22vh, 260px)"} clamp(20px,5vw,64px) 0`,
+        paddingTop: isPhone ? 120 : "clamp(150px, 20vh, 240px)",
+        paddingBottom: 0,
       }}
     >
-      <Kicker>case study</Kicker>
+      <Kicker>semester 6 · interaction design · 2 weeks</Kicker>
       <Typer
-        as="h1"
         text="tapin"
+        as="h1"
         once
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(64px, 14vw, 160px)",
-          lineHeight: 0.95,
-          letterSpacing: "-0.02em",
-          margin: "12px 0 0",
-          color: INK,
-        }}
+        size="clamp(64px, 13vw, 168px)"
+        color={INK}
       />
       <p
         style={{
-          margin: "clamp(24px,3vw,36px) 0 0",
+          margin: "clamp(22px,3vw,34px) 0 0",
           fontFamily: SANS,
-          fontSize: "clamp(18px, 1.7vw, 24px)",
-          lineHeight: 1.55,
+          fontSize: "clamp(17px,1.6vw,22px)",
+          lineHeight: 1.6,
           fontWeight: 400,
           color: INK,
+          maxWidth: 640,
           textTransform: "lowercase",
-          maxWidth: 560,
         }}
       >
         a collaborative tool that helps college students navigate group projects
         with more clarity, connection, and confidence.
       </p>
-    </header>
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 10,
+          marginTop: "clamp(28px,4vw,42px)",
+        }}
+      >
+        <Pill solid>research</Pill>
+        <Pill>synthesis</Pill>
+        <Pill>3 personas</Pill>
+        <Pill>problem framing</Pill>
+        <Pill>hi-fi prototype</Pill>
+      </div>
+    </Section>
   );
 }
 
-function MetaStrip() {
+/* two column meta strip */
+function Meta() {
   const { isPhone } = useViewport();
   const items = [
-    ["role", "end to end, solo"],
+    ["role", "solo, end to end"],
     ["timeline", "2 weeks"],
+    ["scope", "research to hi-fi prototype"],
     ["tools", "figma"],
     ["mentor", "parag sarma"],
-    ["context", "sem 6, interaction design"],
+    ["context", "anant national university"],
   ];
   return (
     <Section>
       <div
         style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: isPhone ? "20px 32px" : "16px 56px",
-          paddingBottom: 4,
-          borderBottom: `1px solid ${LINE}`,
+          display: "grid",
+          gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)",
+          gap: "clamp(20px,3vw,34px)",
         }}
       >
         {items.map(([k, v]) => (
           <div key={k}>
             <p
               style={{
-                margin: "0 0 4px",
+                margin: "0 0 6px",
                 fontFamily: SANS,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
@@ -650,7 +446,7 @@ function MetaStrip() {
               style={{
                 margin: 0,
                 fontFamily: SANS,
-                fontSize: 15,
+                fontSize: "clamp(15px,1.3vw,18px)",
                 fontWeight: 500,
                 color: INK,
                 textTransform: "lowercase",
@@ -665,100 +461,85 @@ function MetaStrip() {
   );
 }
 
-function SectionOverview() {
+function Overview() {
   return (
     <Section>
-      <SectionNumber n={1} />
-      <Typer
-        as="h2"
-        text="overview"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(32px, 5vw, 52px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
+      <Kicker>the short version</Kicker>
+      <Typer text="one product, two weeks, start to finish" size="clamp(28px,4vw,46px)" />
+      <div style={{ height: "clamp(24px,3vw,36px)" }} />
       <P>
-        in college, group projects are supposed to teach teamwork. in practice,
-        they often play out the same way: one person overworks, another coasts,
-        and a third holds back with ideas they never voice. tapin started from
-        that friction.
+        in college, group projects are meant to prepare students for real teamwork.
+        in practice they often collapse into the same pattern: one person over
+        works to protect quality, another coasts, and a third stays quiet with
+        ideas they never voice. tapin started from that friction and worked toward
+        a single question, how do you get everyone in a team to contribute
+        meaningfully, whatever their instincts are.
       </P>
       <P>
-        i ran the whole process solo in two weeks: interviews, synthesis,
-        personas, a problem statement, information architecture, and hi-fi
-        screens in figma.
+        i ran the whole process on my own inside a two week window: interviews,
+        synthesis, secondary research, three personas with journeys, a problem
+        statement, and a full information architecture carried through to hi-fi
+        screens.
       </P>
     </Section>
   );
 }
 
-function SectionResearch() {
+function Primary() {
   const { isPhone } = useViewport();
   const solo = [
-    "need for control over outcomes",
-    "fear of unpredictable teammates",
-    "trust as a precondition for collaboration",
-    "high personal standards causing friction",
-    "micromanaging when others underperform",
+    "need for control over outcomes, to avoid uncertainty",
+    "fear of unpredictable teammates makes solo work feel safer",
+    "trust is a precondition, low trust erodes any motivation to collaborate",
+    "high personal standards become a source of friction",
+    "micromanaging as a coping mechanism when others underperform",
+    "ownership as pride, sharing feels like a loss of it",
   ];
   const team = [
-    "prefers teams, but only with the right people",
-    "wants to pick teammates by skill and ethic",
-    "enjoys shared momentum and learning",
-    "still works solo on critical parts if the team slips",
+    "prefers teams for speed and quality, but only with the right people",
+    "wants some control over who is on the team, by skill and work ethic",
+    "enjoys the social side, learning from others, shared momentum",
+    "learned over time that doing everything alone is inefficient",
+    "actively pulls quieter members in by asking for their view",
+    "will still work solo on critical parts if the team is not aligning",
   ];
   return (
     <Section>
-      <SectionNumber n={2} />
-      <Typer
-        as="h2"
-        text="research"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(32px, 5vw, 52px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
+      <Kicker>primary research</Kicker>
+      <Typer text="i started with my own classmates" size="clamp(26px,3.6vw,42px)" />
+      <div style={{ height: "clamp(22px,3vw,32px)" }} />
       <P>
-        i interviewed classmates about how they actually behave in group work.
-        two clear mindsets came up, so i studied each on its own terms.
+        i interviewed fellow students about how they actually behave in group
+        work. two clear mindsets came up, so i studied each on its own terms
+        rather than flattening them into one average user.
       </P>
 
       <div
         style={{
           display: "grid",
           gridTemplateColumns: isPhone ? "1fr" : "1fr 1fr",
-          gap: "clamp(16px,2.4vw,24px)",
-          marginTop: 12,
+          gap: "clamp(20px,3vw,34px)",
+          marginTop: 30,
         }}
       >
         {[
-          ["prefer working alone", solo],
-          ["prefer working in a team", team],
+          ["those who prefer working alone", solo],
+          ["those who prefer working in a team", team],
         ].map(([heading, list]) => (
           <div
             key={heading}
             style={{
               background: FRAME,
               border: `1px solid ${LINE}`,
-              borderRadius: 14,
-              padding: "clamp(20px,2.6vw,28px)",
+              borderRadius: 16,
+              padding: "clamp(22px,3vw,30px)",
             }}
           >
             <h3
               style={{
-                margin: "0 0 14px",
+                margin: "0 0 16px",
                 fontFamily: SANS,
-                fontSize: 15,
+                fontSize: "clamp(16px,1.5vw,19px)",
                 fontWeight: 600,
                 color: ACCENT,
                 textTransform: "lowercase",
@@ -772,10 +553,10 @@ function SectionResearch() {
                   key={i}
                   style={{
                     fontFamily: SANS,
-                    fontSize: 14,
+                    fontSize: 14.5,
                     lineHeight: 1.6,
                     color: INK,
-                    padding: "7px 0",
+                    padding: "8px 0",
                     borderTop: i === 0 ? "none" : `0.5px solid ${LINE}`,
                     textTransform: "lowercase",
                   }}
@@ -787,226 +568,335 @@ function SectionResearch() {
           </div>
         ))}
       </div>
-
-      <Quote>
-        the problem was not solo people versus team people. it was a shared set
-        of anxieties about control, trust, and recognition that plays out
-        differently depending on who you are.
-      </Quote>
-
-      <P style={{ color: MUTED, fontSize: 15 }}>
-        secondary research confirmed the pattern: teamwork is built into
-        university curricula everywhere, yet free-riding, skill mismatches, and
-        low trust remain the most common barriers.
-      </P>
     </Section>
   );
 }
 
-function SectionPersonas() {
+function Affinity() {
+  const clusters = [
+    "control",
+    "lack of trust",
+    "fear",
+    "behaviour",
+    "accountability",
+    "ownership",
+    "structure",
+    "frustration",
+    "standards",
+    "compromise",
+  ];
+  return (
+    <Section>
+      <Kicker>synthesis · affinity mapping</Kicker>
+      <Typer text="ten themes underneath the noise" size="clamp(26px,3.6vw,42px)" />
+      <div style={{ height: "clamp(22px,3vw,32px)" }} />
+      <P>
+        i clustered every insight from both mindsets into affinity groups. the
+        same tensions kept surfacing on both sides, which told me the problem was
+        not solo people versus team people, it was a shared set of anxieties about
+        control, trust, and recognition that plays out differently per person.
+      </P>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 10,
+          marginTop: 24,
+          maxWidth: 820,
+        }}
+      >
+        {clusters.map((c, i) => (
+          <Pill key={c} solid={i % 3 === 0}>
+            {c}
+          </Pill>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function Secondary() {
   const { isPhone } = useViewport();
+  const blocks = [
+    [
+      "why teamwork matters",
+      "universities build teamwork into their curricula because it is tied to academic and professional achievement. group work develops communication, problem solving, and collaboration.",
+    ],
+    [
+      "what gets in the way",
+      "the common barriers are consistent: weak collaborative skills, free riding, competence status, low trust, and skill mismatches between members.",
+    ],
+    [
+      "what actually helps",
+      "clear expectations, guided team building stages, and structured opportunities to build trust and communication improve how teams work together.",
+    ],
+    [
+      "the indian context",
+      "teamwork is recognised across the indian education system, yet a significant share of indian workers report difficulty with it, which points to a gap worth closing during education.",
+    ],
+  ];
+  return (
+    <Section>
+      <Kicker>secondary research</Kicker>
+      <Typer text="checking my read against the field" size="clamp(26px,3.6vw,42px)" />
+      <div style={{ height: "clamp(22px,3vw,32px)" }} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isPhone ? "1fr" : "1fr 1fr",
+          gap: "clamp(18px,2.6vw,28px)",
+          marginTop: 8,
+        }}
+      >
+        {blocks.map(([h, b]) => (
+          <div key={h}>
+            <h3
+              style={{
+                margin: "0 0 10px",
+                fontFamily: SANS,
+                fontSize: "clamp(16px,1.5vw,19px)",
+                fontWeight: 600,
+                color: INK,
+                textTransform: "lowercase",
+              }}
+            >
+              {h}
+            </h3>
+            <p
+              style={{
+                margin: 0,
+                fontFamily: SANS,
+                fontSize: 15,
+                lineHeight: 1.68,
+                color: MUTED,
+                textTransform: "lowercase",
+              }}
+            >
+              {b}
+            </p>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+/* persona block */
+function Persona({ name, tag, quote, bio, drivers, hmw, index }) {
+  const { isPhone } = useViewport();
+  return (
+    <div style={{ marginTop: index === 0 ? 30 : "clamp(48px,7vw,88px)" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isPhone ? "1fr" : "minmax(0,1fr) minmax(0,1.1fr)",
+          gap: "clamp(22px,3.4vw,46px)",
+          alignItems: "start",
+        }}
+      >
+        <div>
+          <p
+            style={{
+              margin: "0 0 6px",
+              fontFamily: SANS,
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: ACCENT,
+            }}
+          >
+            persona {index + 1}
+          </p>
+          <h3
+            style={{
+              margin: "0 0 4px",
+              fontFamily: SANS,
+              fontSize: "clamp(24px,3vw,34px)",
+              fontWeight: 600,
+              color: INK,
+              textTransform: "lowercase",
+            }}
+          >
+            {name}
+          </h3>
+          <p
+            style={{
+              margin: "0 0 18px",
+              fontFamily: SANS,
+              fontSize: 14,
+              color: MUTED,
+              textTransform: "lowercase",
+            }}
+          >
+            {tag}
+          </p>
+          <blockquote
+            style={{
+              margin: 0,
+              paddingLeft: 16,
+              borderLeft: `2px solid ${TINT}`,
+              fontFamily: SANS,
+              fontSize: "clamp(16px,1.6vw,20px)",
+              lineHeight: 1.5,
+              fontWeight: 500,
+              color: ACCENT,
+              textTransform: "lowercase",
+            }}
+          >
+            {quote}
+          </blockquote>
+        </div>
+
+        <div>
+          <p
+            style={{
+              margin: "0 0 18px",
+              fontFamily: SANS,
+              fontSize: 15.5,
+              lineHeight: 1.7,
+              color: INK,
+              textTransform: "lowercase",
+            }}
+          >
+            {bio}
+          </p>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              marginBottom: 20,
+            }}
+          >
+            {drivers.map((d) => (
+              <span
+                key={d}
+                style={{
+                  fontFamily: SANS,
+                  fontSize: 12.5,
+                  padding: "5px 12px",
+                  borderRadius: 999,
+                  background: FRAME,
+                  border: `0.5px solid ${LINE}`,
+                  color: INK,
+                  textTransform: "lowercase",
+                }}
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+          <div
+            style={{
+              background: FRAME,
+              border: `1px solid ${LINE}`,
+              borderRadius: 14,
+              padding: "18px 20px",
+            }}
+          >
+            <p
+              style={{
+                margin: "0 0 8px",
+                fontFamily: SANS,
+                fontSize: 11.5,
+                fontWeight: 600,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: ACCENT,
+              }}
+            >
+              how might we
+            </p>
+            <p
+              style={{
+                margin: 0,
+                fontFamily: SANS,
+                fontSize: 15,
+                lineHeight: 1.6,
+                color: INK,
+                textTransform: "lowercase",
+              }}
+            >
+              {hmw}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Personas() {
   const people = [
     {
       name: "reet kapoor",
-      tag: "the over-controller",
+      tag: "interaction design student, the over controller",
       quote: "if it is not done my way, it is not done right.",
-      bio: "delivers high-quality work but takes on too much. resents teammates who coast and struggles to delegate.",
-      hmw: "set clear roles from the start, so she does not feel she has to take over.",
+      bio:
+        "reet delivers high quality work and takes on too much to keep control of it. capable but prone to burnout, she resents teammates who do not contribute equally and struggles to delegate because she fears the result will not meet her standard.",
+      drivers: ["control", "high standards", "burnout", "reluctant to delegate"],
+      hmw:
+        "set clear roles from the start, so reet does not feel she has to take over tasks to protect quality.",
     },
     {
       name: "meher singh",
-      tag: "the coaster",
+      tag: "media studies student, the coaster",
       quote: "i will do my part if they tell me what to do.",
-      bio: "easygoing, does the bare minimum. teammates usually take over, which lets her coast unchallenged.",
-      hmw: "make each person's tasks visible, so contribution is clear and necessary.",
+      bio:
+        "meher is easygoing and does the bare minimum. she has grown used to being a passive contributor because teammates usually take over, which lets her coast. she stays under the radar and avoids confrontation about her lack of input.",
+      drivers: ["low effort", "avoids conflict", "under the radar", "disconnected"],
+      hmw:
+        "make each member's tasks visible, so contribution is clear and meher's participation becomes necessary rather than optional.",
     },
     {
       name: "varun mishra",
-      tag: "the quiet one",
+      tag: "visual communication student, the quiet one",
       quote: "i have ideas, but what if they don't like them?",
-      bio: "prefers working alone to avoid conflict. often overlooked, contributes only when asked directly.",
-      hmw: "let quieter members share ideas without the pressure of speaking up in front of everyone.",
+      bio:
+        "varun prefers working alone to avoid conflict and pressure. he is often overlooked in groups and struggles to assert his ideas, fearing judgment. he only contributes when asked directly and feels safer taking a backseat.",
+      drivers: ["fear of judgment", "overlooked", "quiet", "wants a safe space"],
+      hmw:
+        "let quieter members share ideas without the pressure of speaking up in front of everyone, so varun feels safe to contribute.",
     },
   ];
   return (
     <Section>
-      <SectionNumber n={3} />
-      <Typer
-        as="h2"
-        text="personas"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(32px, 5vw, 52px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
+      <Kicker>three ways the problem shows up</Kicker>
+      <Typer text="reet, meher, and varun" size="clamp(28px,4vw,46px)" />
+      <div style={{ height: "clamp(18px,2.4vw,26px)" }} />
       <P>
-        the same tension produces three very different people. framing it through
-        all three kept the solution honest.
+        the same underlying tension produces three very different people. framing
+        it through all three kept the solution honest, it had to work for the one
+        who does too much, the one who does too little, and the one who holds
+        back.
       </P>
-
       {people.map((p, i) => (
-        <div
-          key={p.name}
-          style={{
-            marginTop: i === 0 ? 24 : 40,
-            paddingTop: i === 0 ? 0 : 40,
-            borderTop: i === 0 ? "none" : `1px solid ${LINE}`,
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: isPhone ? "1fr" : "1fr 1.2fr",
-              gap: "clamp(16px,2.6vw,32px)",
-              alignItems: "start",
-            }}
-          >
-            <div>
-              <p
-                style={{
-                  margin: "0 0 4px",
-                  fontFamily: SANS,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: ACCENT,
-                }}
-              >
-                persona {i + 1}
-              </p>
-              <h3
-                style={{
-                  margin: "0 0 2px",
-                  fontFamily: SANS,
-                  fontSize: "clamp(22px,2.8vw,30px)",
-                  fontWeight: 600,
-                  color: INK,
-                  textTransform: "lowercase",
-                }}
-              >
-                {p.name}
-              </h3>
-              <p
-                style={{
-                  margin: "0 0 14px",
-                  fontFamily: SANS,
-                  fontSize: 13,
-                  color: MUTED,
-                  textTransform: "lowercase",
-                }}
-              >
-                {p.tag}
-              </p>
-              <blockquote
-                style={{
-                  margin: 0,
-                  paddingLeft: 14,
-                  borderLeft: `2px solid ${TINT}`,
-                  fontFamily: SANS,
-                  fontSize: "clamp(15px,1.4vw,18px)",
-                  lineHeight: 1.5,
-                  fontWeight: 500,
-                  color: ACCENT,
-                  textTransform: "lowercase",
-                }}
-              >
-                {p.quote}
-              </blockquote>
-            </div>
-            <div>
-              <p
-                style={{
-                  margin: "0 0 16px",
-                  fontFamily: SANS,
-                  fontSize: 15,
-                  lineHeight: 1.7,
-                  color: INK,
-                  textTransform: "lowercase",
-                }}
-              >
-                {p.bio}
-              </p>
-              <div
-                style={{
-                  background: FRAME,
-                  border: `1px solid ${LINE}`,
-                  borderRadius: 12,
-                  padding: "14px 18px",
-                }}
-              >
-                <p
-                  style={{
-                    margin: "0 0 6px",
-                    fontFamily: SANS,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                    color: ACCENT,
-                  }}
-                >
-                  how might we
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontFamily: SANS,
-                    fontSize: 14,
-                    lineHeight: 1.6,
-                    color: INK,
-                    textTransform: "lowercase",
-                  }}
-                >
-                  {p.hmw}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Persona key={p.name} index={i} {...p} />
       ))}
     </Section>
   );
 }
 
-function SectionProblem() {
+function Problem() {
   return (
     <Section>
-      <SectionNumber n={4} />
-      <Typer
-        as="h2"
-        text="problem"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(32px, 5vw, 52px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
       <div
         style={{
           background: ACCENT,
-          borderRadius: 16,
-          padding: "clamp(28px,4vw,52px)",
+          borderRadius: 20,
+          padding: "clamp(34px,5vw,64px)",
         }}
       >
         <p
           style={{
-            margin: "0 0 14px",
+            margin: "0 0 18px",
             fontFamily: SANS,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 600,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
-            color: FRAME,
+            color: "#EEF1DF",
           }}
         >
           problem statement
@@ -1015,11 +905,12 @@ function SectionProblem() {
           style={{
             margin: 0,
             fontFamily: SANS,
-            fontSize: "clamp(20px, 3vw, 34px)",
-            lineHeight: 1.35,
+            fontSize: "clamp(22px,3.4vw,40px)",
+            lineHeight: 1.3,
             fontWeight: 600,
             color: PAPER,
             textTransform: "lowercase",
+            maxWidth: 900,
           }}
         >
           how might we create a context in which every team member feels compelled
@@ -1031,7 +922,7 @@ function SectionProblem() {
   );
 }
 
-function SectionSolution() {
+function Solution() {
   const { isPhone } = useViewport();
   const pillars = [
     [
@@ -1049,31 +940,21 @@ function SectionSolution() {
   ];
   return (
     <Section>
-      <SectionNumber n={5} />
-      <Typer
-        as="h2"
-        text="solution"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(32px, 5vw, 52px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
+      <Kicker>the solution</Kicker>
+      <Typer text="tapin" size="clamp(40px,7vw,84px)" />
+      <div style={{ height: "clamp(20px,2.6vw,30px)" }} />
       <P>
-        tapin creates a space for students to understand their teammates, express
-        themselves, and contribute with intention. the aim is simple: make
-        teamwork less awkward and more deliberate.
+        tapin creates a safe space for students to understand their teammates,
+        express themselves, and contribute meaningfully, through personalised
+        icebreakers, team habit building prompts, and reflection tools. the aim is
+        simple, make teamwork less awkward and more intentional.
       </P>
       <div
         style={{
           display: "grid",
           gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)",
-          gap: "clamp(14px,2vw,22px)",
-          marginTop: 24,
+          gap: "clamp(16px,2.4vw,26px)",
+          marginTop: 30,
         }}
       >
         {pillars.map(([h, b], i) => (
@@ -1082,14 +963,14 @@ function SectionSolution() {
             style={{
               background: FRAME,
               border: `1px solid ${LINE}`,
-              borderRadius: 14,
-              padding: "clamp(20px,2.6vw,26px)",
+              borderRadius: 16,
+              padding: "clamp(22px,3vw,28px)",
             }}
           >
             <div
               style={{
-                width: 28,
-                height: 28,
+                width: 32,
+                height: 32,
                 borderRadius: 999,
                 background: TINT,
                 color: "#3f4a1c",
@@ -1098,17 +979,17 @@ function SectionSolution() {
                 justifyContent: "center",
                 fontFamily: SANS,
                 fontWeight: 600,
-                fontSize: 13,
-                marginBottom: 14,
+                fontSize: 15,
+                marginBottom: 16,
               }}
             >
               {i + 1}
             </div>
             <h3
               style={{
-                margin: "0 0 6px",
+                margin: "0 0 8px",
                 fontFamily: SANS,
-                fontSize: 15,
+                fontSize: 17,
                 fontWeight: 600,
                 color: INK,
                 textTransform: "lowercase",
@@ -1120,8 +1001,8 @@ function SectionSolution() {
               style={{
                 margin: 0,
                 fontFamily: SANS,
-                fontSize: 14,
-                lineHeight: 1.6,
+                fontSize: 14.5,
+                lineHeight: 1.62,
                 color: MUTED,
                 textTransform: "lowercase",
               }}
@@ -1135,60 +1016,74 @@ function SectionSolution() {
   );
 }
 
-function SectionIA() {
+/* information architecture, placeholder image slot */
+function IA() {
   return (
     <Section>
-      <SectionNumber n={6} />
-      <Typer
-        as="h2"
-        text="information architecture"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(28px, 4.4vw, 46px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
+      <Kicker>information architecture</Kicker>
+      <Typer text="how the app is organised" size="clamp(26px,3.6vw,42px)" />
+      <div style={{ height: "clamp(22px,3vw,32px)" }} />
       <P>
         five spaces hold the product together: home, icebreakers, community,
-        projects, and profile. each maps to a moment in the group work arc.
+        projects, and profile. each maps to a moment in the group work arc, from
+        meeting your team to reflecting once the project ships.
       </P>
-      <FullImage
-        alt="information architecture diagram"
-        caption="information architecture showing the five main spaces and their relationships."
-      />
+      <div
+        style={{
+          marginTop: 22,
+          background: FRAME,
+          border: `1px solid ${LINE}`,
+          borderRadius: 16,
+          aspectRatio: "16 / 8",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+        }}
+      >
+        {/* swap for the IA export, e.g. <img src="/tapin-ia.png" ... /> */}
+        <span
+          style={{
+            fontFamily: SANS,
+            fontSize: 14,
+            color: ACCENT,
+            textTransform: "lowercase",
+          }}
+        >
+          information architecture diagram goes here
+        </span>
+      </div>
     </Section>
   );
 }
 
-function SectionScreens() {
+/* hi-fi screens, grouped by flow. labels double as placeholders
+   until the real exports are dropped into public/ */
+function Screens() {
   const groups = [
     [
       "onboarding and setup",
-      "students set up a profile, pick strengths, and land on a home that shows projects and recommended icebreakers.",
+      "students set up a profile, pick their strengths, and land on a home that shows ongoing projects and recommended icebreakers.",
       [
         ["onboarding 1", null],
         ["onboarding 2", null],
-        ["select strengths", null],
+        ["select your strengths", null],
         ["home", null],
       ],
     ],
     [
       "building a team",
-      "start a project, choose teammates by complementary skills, open a group chat.",
+      "start a project, choose teammates by complementary skills, and open a group chat, so the team forms with intention rather than by default.",
       [
-        ["project details", null],
-        ["choose teammates", null],
+        ["enter project details", null],
+        ["choose your teammates", null],
         ["community", null],
         ["group chat", null],
       ],
     ],
     [
       "icebreakers",
-      "light games that lower the social barrier and give quieter members an easy first contribution.",
+      "light games like spy and guess the liar lower the social barrier and give quieter members an easy first contribution.",
       [
         ["icebreakers", null],
         ["guess the liar", null],
@@ -1196,38 +1091,27 @@ function SectionScreens() {
     ],
     [
       "contribution and feedback",
-      "personal contribution views and peer feedback make effort visible.",
+      "personal contribution views and peer feedback make effort visible and recognised, the core of the problem statement.",
       [
-        ["contribution", null],
-        ["feedback", null],
+        ["personal contribution", null],
+        ["feedback for a teammate", null],
         ["notifications", null],
         ["profile", null],
       ],
     ],
   ];
   return (
-    <Section wide>
-      <SectionNumber n={7} />
-      <Typer
-        as="h2"
-        text="screens"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(32px, 5vw, 52px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
+    <Section>
+      <Kicker>hi-fi screens</Kicker>
+      <Typer text="the product, screen by screen" size="clamp(26px,3.6vw,42px)" />
+      <div style={{ height: "clamp(12px,2vw,20px)" }} />
       {groups.map(([h, b, screens], gi) => (
-        <div key={h} style={{ marginTop: gi === 0 ? 16 : "clamp(48px,6vw,72px)" }}>
+        <div key={h} style={{ marginTop: gi === 0 ? 26 : "clamp(40px,6vw,72px)" }}>
           <h3
             style={{
-              margin: "0 0 6px",
+              margin: "0 0 8px",
               fontFamily: SANS,
-              fontSize: "clamp(16px,1.5vw,20px)",
+              fontSize: "clamp(18px,1.8vw,22px)",
               fontWeight: 600,
               color: INK,
               textTransform: "lowercase",
@@ -1237,12 +1121,12 @@ function SectionScreens() {
           </h3>
           <p
             style={{
-              margin: "0 0 4px",
+              margin: "0 0 6px",
               fontFamily: SANS,
-              fontSize: 14,
-              lineHeight: 1.6,
+              fontSize: 15,
+              lineHeight: 1.66,
               color: MUTED,
-              maxWidth: 600,
+              maxWidth: 720,
               textTransform: "lowercase",
             }}
           >
@@ -1259,42 +1143,31 @@ function SectionScreens() {
   );
 }
 
-function SectionReflection() {
+function Reflection() {
   return (
     <Section>
-      <SectionNumber n={8} />
-      <Typer
-        as="h2"
-        text="reflection"
-        style={{
-          fontFamily: SANS,
-          fontWeight: 600,
-          textTransform: "lowercase",
-          fontSize: "clamp(32px, 5vw, 52px)",
-          lineHeight: 1.05,
-          color: INK,
-          margin: "10px 0 clamp(24px,3vw,36px)",
-        }}
-      />
+      <Kicker>reflection</Kicker>
+      <Typer text="what two weeks taught me" size="clamp(26px,3.6vw,42px)" />
+      <div style={{ height: "clamp(22px,3vw,32px)" }} />
       <P>
-        the two-week constraint was the point. it forced me to move from
-        interviews to a defensible problem statement fast and to trust synthesis
-        instead of gathering endlessly. building for three opposite personas kept
-        the concept from bending toward any one type of student.
+        the constraint was the point. two weeks forced me to move from interviews
+        to a defensible problem statement fast, and to trust synthesis instead of
+        gathering endlessly. building for three opposite personas kept the concept
+        from bending toward any one type of student.
       </P>
       <P>
-        if i took this further, i would test the icebreakers and contribution
-        views with real teams mid-project, the two features that carry the most
-        weight against the problem statement, and see whether visible
-        contribution actually shifts behaviour.
+        if i took this further, i would test the icebreakers and the contribution
+        views with real teams mid project, the two features that carry the most
+        weight against the problem statement, and see whether visible contribution
+        actually shifts behaviour rather than just measuring it.
       </P>
     </Section>
   );
 }
 
-/* ================================================================= */
+/* ------------------------------------------------------------------ */
 /* page                                                               */
-/* ================================================================= */
+/* ------------------------------------------------------------------ */
 export default function TapIn() {
   return (
     <main
@@ -1304,24 +1177,24 @@ export default function TapIn() {
         overflowX: "hidden",
       }}
     >
-      <TyperStyles />
       <Nav />
-      <Hero />
-      <MetaStrip />
+      <Title />
+      <Meta />
       <ThreadRule />
-      <SectionOverview />
+      <Overview />
       <ThreadRule />
-      <SectionResearch />
+      <Primary />
+      <Affinity />
+      <Secondary />
       <ThreadRule />
-      <SectionPersonas />
+      <Personas />
       <ThreadRule />
-      <SectionProblem />
-      <SectionSolution />
+      <Problem />
+      <Solution />
+      <IA />
+      <Screens />
       <ThreadRule />
-      <SectionIA />
-      <SectionScreens />
-      <ThreadRule />
-      <SectionReflection />
+      <Reflection />
       <div style={{ height: "clamp(60px,8vw,110px)" }} />
       <SiteFooter tint={ACCENT} heading="let's tap in" />
     </main>
