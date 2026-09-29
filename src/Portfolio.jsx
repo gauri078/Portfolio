@@ -919,7 +919,7 @@ const CAR_STAGE_H = 340;
 const CAR_ORBIT = 138;
 const CAR_DEPTH = 100;
 const CAR_DEPTH_MAX = 150;
-const CAR_CORNER = 18;
+const CAR_CORNER = 8;
 const CAR_FLOAT = 15;
 const CAR_SINK = 50;
 const CAR_SETTLE = 50;
@@ -960,10 +960,15 @@ function AboutCarousel({
   float: floatAmt = CAR_FLOAT,
   sink = CAR_SINK,
   settle = CAR_SETTLE,
-  spin = 12,
+  spin = 28,
+  scale = 1,
 } = {}) {
   const still = carStillness();
 
+  const w = Math.round(CAR_W * scale);
+  const h = Math.round(CAR_H * scale);
+  const stageW = Math.round(CAR_STAGE_W * scale);
+  const stageH = Math.round(CAR_STAGE_H * scale);
   const slots = useRef([]);
   const turn = useRef(CAR_OPENS_ON);
   const raf = useRef(0);
@@ -1048,10 +1053,10 @@ function AboutCarousel({
     go(d);
   };
 
-  const r = carClamp(corner, 0, 40);
+  const r = Math.round(carClamp(corner, 0, 40) * scale);
 
   return (
-    <div style={{ width: CAR_STAGE_W, height: CAR_STAGE_H, position: "relative", maxWidth: "100%", margin: "0 auto" }}>
+    <div style={{ width: stageW, height: stageH, position: "relative", maxWidth: "100%", margin: "0 auto" }}>
       <div
         data-held={held}
         role="group"
@@ -1074,7 +1079,7 @@ function AboutCarousel({
               ref={(el) => { slots.current[i] = el; }}
               style={{
                 position: "absolute", left: "50%", top: "50%", transformOrigin: "center",
-                width: CAR_W, height: CAR_H,
+                width: w, height: h,
               }}
             >
               <div
@@ -1229,7 +1234,7 @@ function About() {
           alignItems: "center",
           justifyContent: "center",
         }}>
-          <AboutCarousel />
+          <AboutCarousel scale={narrow ? 1 : 1.3} orbit={narrow ? CAR_ORBIT : Math.round(CAR_ORBIT * 1.3)} />
         </div>
       </div>
 
