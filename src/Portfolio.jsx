@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect, lazy, Suspense } from "react";
 import DriverBen from "./DriverBen";
 import Laundry from "./Laundry";
 import TapIn from "./TapIn";
 import { FOOTER_IMG } from "./footerImage";
+
+// CMS case study pages load on demand, so the home page and the three coded
+// case studies never download the block renderer.
+const CaseStudy = lazy(() => import("./CaseStudy.jsx"));
 
 /**
  * Portfolio, single scroll-based page.
@@ -14,18 +18,18 @@ import { FOOTER_IMG } from "./footerImage";
  */
 
 // Hushed orchid palette, sampled from the reference.
-const CREAM = "#FAECBB";    // the exact butter yellow of "keep blooming."
-const PINK = "#C4587E";     // dusty rose accent
-const DEEP = "#8E3A5C";     // darker petal core
-const BLUSH = "#F4DCE5";    // palest wash
-const PAPER = "#FCFCFC";   // sampled from the white behind the petals
-const INK = "#3E2430";      // deep wine, warm, pulled from the petal centres
-const MUTED = "#8A6F7C";
+export const CREAM = "#FAECBB";    // the exact butter yellow of "keep blooming."
+export const PINK = "#C4587E";     // dusty rose accent
+export const DEEP = "#8E3A5C";     // darker petal core
+export const BLUSH = "#F4DCE5";    // palest wash
+export const PAPER = "#FCFCFC";   // sampled from the white behind the petals
+export const INK = "#3E2430";      // deep wine, warm, pulled from the petal centres
+export const MUTED = "#8A6F7C";
 
 // Poppins: geometric, rounded, single-storey g, the face in the reference.
-const DISPLAY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
-const BODY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
-const SHELL = { maxWidth: 1080, margin: "0 auto", width: "100%", padding: "0 clamp(24px, 6vw, 72px)", boxSizing: "border-box" };
+export const DISPLAY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
+export const BODY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
+export const SHELL = { maxWidth: 1080, margin: "0 auto", width: "100%", padding: "0 clamp(24px, 6vw, 72px)", boxSizing: "border-box" };
 
 /* =========================== TYPER =========================== */
 
@@ -60,7 +64,7 @@ function bezierEase(x, x1, y1, x2, y2, eps = 1e-6) {
   return by(t);
 }
 
-function TyperStyles() {
+export function TyperStyles() {
   const css = `
 ::selection{background:${PINK};color:${PAPER};}
 ::-moz-selection{background:${PINK};color:${PAPER};}
@@ -101,7 +105,7 @@ function TyperStyles() {
  * `frame` advances on an interval; each char's class is derived from global
  * progress minus its own bezier control point, so the wave ripples across.
  */
-function Typer({ text, as: Tag = "span", fps = 20, cycles = 3, cycleLength = 0.5, delay = 0, threshold = 0.35, once = false, style, className }) {
+export function Typer({ text, as: Tag = "span", fps = 20, cycles = 3, cycleLength = 0.5, delay = 0, threshold = 0.35, once = false, style, className }) {
   const ref = useRef(null);
   const [frame, setFrame] = useState(-1); // -1 = untouched (initial)
   const variations = useRef(ALL_VARIATIONS.slice().sort(() => 0.5 - Math.random()));
@@ -698,7 +702,7 @@ function ImageDisplacement({
 /* ========================== VIEWPORT ========================== */
 
 // One source of truth for breakpoints: phone < 640, tablet < 1024, else desktop.
-function useViewport() {
+export function useViewport() {
   const [vp, setVp] = useState({ w: 1280, isPhone: false, isTablet: false });
   useEffect(() => {
     const read = () => {
@@ -1260,6 +1264,8 @@ function About() {
 
 /* ============================ WORK ============================ */
 
+// The hand-written list. It shows straight away, and stays if Sanity can't be
+// reached or has no published projects yet, so the section is never empty.
 const PROJECTS = [
   { n: "01", title: "driver ben", href: "/driverben", meta: "Research film · Speculative", year: "2024",
     blurb: "A Hindi diary film on the barriers facing female driver trainees, built from field research, empathy mapping and speculative scenarios." },
@@ -1272,6 +1278,38 @@ const PROJECTS = [
   { n: "05", title: "borderplus", meta: "UI/UX · Product design", year: "2025", status: "under nda",
     blurb: "Product design work covered by an nda, so the details stay off the site. Happy to talk about it in conversation." },
 ];
+
+// Turns one published Sanity project into the same shape as a PROJECTS row.
+// Coded case studies keep their own pages; new ones open /work/<slug>; a
+// project with no case study falls back to its external link, or no link.
+function rowFromCms(doc, i) {
+  return {
+    n: String(i + 1).padStart(2, "0"),
+    title: doc.title,
+    href: doc.legacyPath || (doc.hasCaseStudy ? `/work/${doc.slug}` : doc.externalLink) || undefined,
+    meta: doc.category,
+    year: doc.year != null ? String(doc.year) : "",
+    status: doc.statusLabel || undefined,
+    blurb: doc.summary,
+  };
+}
+
+// Published projects from Sanity, or null while loading / on failure.
+function useCmsProjects() {
+  const [rows, setRows] = useState(null);
+  useEffect(() => {
+    let live = true;
+    // Loaded after the page is up, so the Sanity code never slows the first paint.
+    import("./sanity")
+      .then(({ sanity, PROJECT_LIST_QUERY }) => sanity.fetch(PROJECT_LIST_QUERY))
+      .then((docs) => {
+        if (live && Array.isArray(docs) && docs.length) setRows(docs.map(rowFromCms));
+      })
+      .catch((err) => console.warn("Sanity unavailable, showing the built-in project list.", err));
+    return () => { live = false; };
+  }, []);
+  return rows;
+}
 
 function ProjectRow({ p, last, stacked }) {
   const [hover, setHover] = useState(false);
@@ -1325,6 +1363,7 @@ function ProjectRow({ p, last, stacked }) {
 function Work() {
   const { isPhone, isTablet } = useViewport();
   const stacked = isPhone || isTablet;
+  const projects = useCmsProjects() || PROJECTS;
   return (
     <section id="work" style={{ padding: "clamp(70px, 12vh, 170px) 0", background: PAPER }}>
       <div style={{ ...SHELL, textAlign: "left" }}>
@@ -1335,8 +1374,8 @@ function Work() {
           style={{ display: "block", fontFamily: DISPLAY, fontSize: "clamp(30px, 6vw, 70px)", fontWeight: 600, lineHeight: 1.04, letterSpacing: "-0.02em", color: INK, margin: 0 }}
         />
         <div style={{ marginTop: 46, borderTop: "1px solid rgba(74,64,70,0.1)" }}>
-          {PROJECTS.map((p, i) => (
-            <ProjectRow key={p.n} p={p} last={i === PROJECTS.length - 1} stacked={stacked} />
+          {projects.map((p, i) => (
+            <ProjectRow key={p.n} p={p} last={i === projects.length - 1} stacked={stacked} />
           ))}
         </div>
       </div>
@@ -1470,11 +1509,20 @@ function Site() {
 
 /* Simplest possible routing: no libraries. On load, look at the URL path and
    render the case study for /driverben, otherwise the main site. Links are
-   plain <a href> tags, so each does a normal page load and this runs again. */
+   plain <a href> tags, so each does a normal page load and this runs again.
+   /work/<slug> is a case study built in Sanity. */
 export default function App() {
   const path = typeof window !== "undefined" ? window.location.pathname.replace(/\/+$/, "") : "";
   if (path === "/driverben") return <DriverBen />;
   if (path === "/laundry") return <Laundry />;
   if (path === "/tapin") return <TapIn />;
+  const work = path.match(/^\/work\/([^/]+)$/);
+  if (work) {
+    return (
+      <Suspense fallback={<div style={{ minHeight: "100vh", background: PAPER }} />}>
+        <CaseStudy slug={decodeURIComponent(work[1])} />
+      </Suspense>
+    );
+  }
   return <Site />;
 }
