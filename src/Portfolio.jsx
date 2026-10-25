@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect } from "react";
+import { SocialIcons } from "./Socials";
 import DriverBen from "./DriverBen";
 import Laundry from "./Laundry";
 import TapIn from "./TapIn";
@@ -756,18 +757,22 @@ function Nav() {
         position: "fixed",
         top: isPhone ? 16 : "clamp(22px, 3.4vw, 38px)",
         right: isPhone ? 16 : "clamp(24px, 6vw, 72px)",
-        left: isPhone ? 16 : "auto",
+        left: isPhone ? 16 : "clamp(24px, 6vw, 72px)",
         zIndex: 100,
         display: "flex",
         alignItems: "center",
-        justifyContent: isPhone ? "space-between" : "flex-end",
-        gap: isPhone ? 12 : 26,
+        justifyContent: "space-between",
+        gap: 16,
+        pointerEvents: "none",
       }}
     >
-      <NavItem label="gauri" target="hero" compact={isPhone} />
-      <NavItem label="about" target="about" compact={isPhone} />
-      <NavItem label="work" target="work" compact={isPhone} />
-      <NavItem label="contact" target="contact" compact={isPhone} />
+      <SocialIcons color={INK} hoverColor={PINK} size={isPhone ? 15 : 17} gap={isPhone ? 12 : 16} />
+      <div style={{ display: "flex", alignItems: "center", gap: isPhone ? 14 : 26, pointerEvents: "auto" }}>
+        <NavItem label="gauri" target="hero" compact={isPhone} />
+        <NavItem label="work" target="work" compact={isPhone} />
+        <NavItem label="about" target="about" compact={isPhone} />
+        <NavItem label="contact" target="contact" compact={isPhone} />
+      </div>
     </nav>
   );
 }
@@ -1212,9 +1217,18 @@ function About() {
             fontSize: "clamp(15px, 1.8vw, 18px)", lineHeight: 1.75,
             color: INK, margin: 0, textAlign: "left",
           }}>
-            I make things for screens and for people, always chasing the
-            next thing to learn, and none of it comes from nowhere. Every
-            idea I have is borrowed from a person, a place, or a moment I
+            I work across research, systems and product: talking to people,
+            mapping the systems they live inside, and carrying what I find
+            through to films, prototypes and shipped screens.
+          </p>
+          <p style={{
+            fontFamily: BODY, fontWeight: 300,
+            fontSize: "clamp(15px, 1.8vw, 18px)", lineHeight: 1.75,
+            color: INK, margin: narrow ? "14px 0 0" : "20px 0 0", textAlign: "left",
+          }}>
+            Outside the work I run on coffee and music. I sing, I play, I
+            make things, and none of it comes from nowhere: every idea I
+            have is borrowed from a person, a place, or a moment I
             couldn{"'"}t quite let go of.
           </p>
           <p style={{
@@ -1260,26 +1274,130 @@ function About() {
 
 /* ============================ WORK ============================ */
 
+// A still from the film, saved locally so the card never depends on YouTube.
+const DRIVERBEN_STILL = "/driverben-still.jpg";
+
 const PROJECTS = [
   { n: "01", title: "driver ben", href: "/driverben", meta: "Research film · Speculative", year: "2024",
-    blurb: "A Hindi diary film on the barriers facing female driver trainees, built from field research, empathy mapping and speculative scenarios." },
+    blurb: "A Hindi diary film about women training to become drivers.",
+    wash: BLUSH, cover: { src: DRIVERBEN_STILL, alt: "Hands opening the diary from the film on a floral bedsheet." } },
   { n: "02", title: "untangling the knots", href: "/laundry", meta: "Systems design · Gigamap", year: "2025",
-    blurb: "A hostel laundry system mapped down to its roots, then rebuilt around RFID tagging and a rule that enforces itself." },
+    blurb: "A hostel laundry system, mapped to its roots and rebuilt around RFID.",
+    wash: "#EDEFF6", cover: { src: "/laundry-systemmap.jpg", alt: "The hand drawn system map of the hostel laundry." } },
   { n: "03", title: "tapin", href: "/tapin", meta: "UI/UX · Product design", year: "2025",
-    blurb: "A collaborative tool that gets every student to contribute in group projects, taken from classmate interviews to a hi-fi prototype in two weeks." },
+    blurb: "Getting every student to contribute in group projects.",
+    wash: "#EEF1DF", cover: { personas: true } },
   { n: "04", title: "stilt", meta: "UI/UX · Product design", year: "2026", status: "launching september 2026",
-    blurb: "A product built end to end, launching this september. The case study goes live once it ships." },
+    blurb: "A product built end to end. The case study goes live once it ships." },
   { n: "05", title: "borderplus", meta: "UI/UX · Product design", year: "2025", status: "under nda",
-    blurb: "Product design work covered by an nda, so the details stay off the site. Happy to talk about it in conversation." },
+    blurb: "The details stay off the site, but I'm happy to talk about it in conversation." },
 ];
 
-function ProjectRow({ p, last, stacked }) {
+const TAPIN_VOICES = [
+  ["reet", "if it is not done my way, it is not done right."],
+  ["meher", "i will do my part if they tell me what to do."],
+  ["varun", "i have ideas, but what if they don't like them?"],
+];
+
+// The picture for a project: the photo, or for tapin the three personas as chat bubbles.
+function Preview({ p, compact }) {
+  if (p.cover.personas) {
+    return (
+      <div style={{ width: "100%", height: "100%", background: p.wash, display: "flex", alignItems: "center", justifyContent: "center", padding: compact ? "18px" : "22px", boxSizing: "border-box" }}>
+        <div style={{ width: "100%", display: "grid", gap: compact ? 8 : 10 }}>
+          {TAPIN_VOICES.map(([who, line], i) => (
+            <div key={who} style={{ justifySelf: i === 1 ? "end" : "start", maxWidth: "88%", display: "grid", gap: 4, justifyItems: i === 1 ? "end" : "start" }}>
+              <span style={{ fontFamily: BODY, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6E7E3D" }}>{who}</span>
+              <span style={{ fontFamily: BODY, fontSize: compact ? 12.5 : 13, lineHeight: 1.4, color: INK, background: "#fff", padding: "8px 12px", borderRadius: i === 1 ? "14px 14px 3px 14px" : "14px 14px 14px 3px" }}>
+                {line}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return <img src={p.cover.src} alt={p.cover.alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
+}
+
+// True where a real pointer can hover. Touch screens get the scroll version instead.
+function useCanHover() {
+  const [can, setCan] = useState(false);
+  useEffect(() => {
+    const q = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const read = () => setCan(q.matches);
+    read();
+    q.addEventListener("change", read);
+    return () => q.removeEventListener("change", read);
+  }, []);
+  return can;
+}
+
+/* Desktop: the hovered project's picture floats beside the cursor and trails it slightly. */
+function HoverPreview({ project }) {
+  const ref = useRef(null);
+  const target = useRef({ x: 0, y: 0 });
+  const pos = useRef({ x: 0, y: 0 });
+  const seen = useRef(false);
+  const [last, setLast] = useState(project);
+  if (project && project !== last) setLast(project);
+
+  useEffect(() => {
+    let raf = 0;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const onMove = (e) => {
+      target.current = { x: e.clientX, y: e.clientY };
+      if (!seen.current) { pos.current = { ...target.current }; seen.current = true; }
+    };
+    const tick = () => {
+      const k = reduce ? 1 : 0.16;
+      pos.current.x += (target.current.x - pos.current.x) * k;
+      pos.current.y += (target.current.y - pos.current.y) * k;
+      if (ref.current) ref.current.style.transform = `translate3d(${pos.current.x + 28}px, ${pos.current.y - 120}px, 0)`;
+      raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener("pointermove", onMove);
+    raf = requestAnimationFrame(tick);
+    return () => { window.removeEventListener("pointermove", onMove); cancelAnimationFrame(raf); };
+  }, []);
+
+  const shown = Boolean(project);
+  return (
+    <div ref={ref} aria-hidden="true" style={{ position: "fixed", left: 0, top: 0, zIndex: 50, pointerEvents: "none" }}>
+      <div
+        style={{
+          width: 320, aspectRatio: "4 / 3", borderRadius: 12, overflow: "hidden",
+          background: last ? last.wash : BLUSH,
+          boxShadow: "0 30px 60px -30px rgba(62,36,48,0.55)",
+          opacity: shown ? 1 : 0,
+          transform: shown ? "scale(1) rotate(-2deg)" : "scale(0.86) rotate(-5deg)",
+          transition: "opacity 260ms ease, transform 420ms cubic-bezier(.2,.8,.2,1)",
+        }}
+      >
+        {last ? <Preview p={last} /> : null}
+      </div>
+    </div>
+  );
+}
+
+/* Touch: a project's picture slides open under its title while the row sits mid-screen. */
+function useCentred(ref, enabled) {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    if (!enabled || !ref.current) return undefined;
+    const io = new IntersectionObserver(([e]) => setOn(e.isIntersecting), { rootMargin: "-38% 0px -38% 0px" });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [enabled]);
+  return on;
+}
+
+function ProjectRow({ p, last, stacked, canHover, onHover }) {
   const [hover, setHover] = useState(false);
-  // A row is "openable" only if it links somewhere. Status rows (stilt, borderplus)
-  // have no href, so they read as present-but-not-clickable: default cursor,
-  // no pink hover cue, and a small status pill beside the title.
+  const ref = useRef(null);
   const openable = Boolean(p.href);
-  const active = openable && hover;
+  const centred = useCentred(ref, !canHover && Boolean(p.cover));
+  const active = openable && (hover || centred);
   const rowStyle = {
     display: "grid",
     gridTemplateColumns: stacked ? "auto 1fr" : "auto 1fr auto",
@@ -1296,7 +1414,7 @@ function ProjectRow({ p, last, stacked }) {
   const inner = (
     <>
       <span style={{ fontFamily: BODY, fontSize: 12, letterSpacing: "0.16em", color: active ? PINK : MUTED, transition: "color 300ms ease" }}>{p.n}</span>
-      <div>
+      <div style={{ minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
           <h3 style={{ fontFamily: DISPLAY, fontSize: "clamp(24px, 4.4vw, 48px)", fontWeight: 600, lineHeight: 1.08, letterSpacing: "-0.02em", margin: 0, color: active ? PINK : INK, transition: "color 300ms ease" }}>
             {p.title}
@@ -1310,6 +1428,15 @@ function ProjectRow({ p, last, stacked }) {
         <p style={{ fontFamily: BODY, fontWeight: 300, fontSize: "clamp(14px, 1.5vw, 16px)", lineHeight: 1.7, color: MUTED, margin: "12px 0 0", maxWidth: 520 }}>
           {p.blurb}
         </p>
+        {!canHover && p.cover ? (
+          <div style={{ display: "grid", gridTemplateRows: centred ? "1fr" : "0fr", transition: "grid-template-rows 520ms cubic-bezier(.2,.8,.2,1)" }}>
+            <div style={{ overflow: "hidden" }}>
+              <div style={{ marginTop: 18, borderRadius: 12, overflow: "hidden", aspectRatio: "4 / 3", maxWidth: 440, opacity: centred ? 1 : 0, transform: centred ? "none" : "translateY(-8px)", transition: "opacity 420ms ease, transform 520ms cubic-bezier(.2,.8,.2,1)" }}>
+                <Preview p={p} compact />
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
       <div style={{ gridColumn: stacked ? "2" : "auto", textAlign: stacked ? "left" : "right", fontFamily: BODY, fontWeight: 300, fontSize: 12, lineHeight: 1.8, color: MUTED, whiteSpace: "nowrap", marginTop: stacked ? 4 : 0 }}>
         <div style={{ letterSpacing: "0.05em" }}>{p.meta}</div>
@@ -1317,16 +1444,21 @@ function ProjectRow({ p, last, stacked }) {
       </div>
     </>
   );
-  const on = { onMouseEnter: () => setHover(true), onMouseLeave: () => setHover(false) };
-  if (openable) return <a href={p.href} style={rowStyle} {...on}>{inner}</a>;
-  return <div style={rowStyle} {...on}>{inner}</div>;
+  const on = {
+    onMouseEnter: () => { setHover(true); if (canHover && p.cover) onHover(p); },
+    onMouseLeave: () => { setHover(false); if (canHover) onHover(null); },
+  };
+  if (openable) return <a ref={ref} href={p.href} style={rowStyle} {...on}>{inner}</a>;
+  return <div ref={ref} style={rowStyle} {...on}>{inner}</div>;
 }
 
 function Work() {
   const { isPhone, isTablet } = useViewport();
   const stacked = isPhone || isTablet;
+  const canHover = useCanHover();
+  const [hovered, setHovered] = useState(null);
   return (
-    <section id="work" style={{ padding: "clamp(70px, 12vh, 170px) 0", background: PAPER }}>
+    <section id="work" style={{ padding: "clamp(70px, 12vh, 170px) 0 clamp(40px, 6vh, 70px)", background: PAPER }}>
       <div style={{ ...SHELL, textAlign: "left" }}>
         <Typer
           text="selected work"
@@ -1336,7 +1468,47 @@ function Work() {
         />
         <div style={{ marginTop: 46, borderTop: "1px solid rgba(74,64,70,0.1)" }}>
           {PROJECTS.map((p, i) => (
-            <ProjectRow key={p.n} p={p} last={i === PROJECTS.length - 1} stacked={stacked} />
+            <ProjectRow key={p.n} p={p} last={i === PROJECTS.length - 1} stacked={stacked} canHover={canHover} onHover={setHovered} />
+          ))}
+        </div>
+      </div>
+      {canHover ? <HoverPreview project={hovered} /> : null}
+    </section>
+  );
+}
+
+/* ========================= EXPERIENCE ========================= */
+
+// Stealth's points are still to come; an empty `what` simply shows no line.
+const EXPERIENCE = [
+  { place: "Stealth", role: "UX/UI Design Intern", when: "July 2025 – present", what: "" },
+  { place: "MixedWash", role: "Product Design Intern", when: "December 2024 – January 2025",
+    what: "Designed the home screen, onboarding flow and order detail screen from scratch, working with stakeholders to keep the designs aligned with business goals." },
+];
+
+function Experience() {
+  const { isPhone } = useViewport();
+  return (
+    <section id="experience" style={{ padding: "clamp(40px, 6vh, 70px) 0 clamp(60px, 10vh, 130px)", background: PAPER }}>
+      <div style={{ ...SHELL, textAlign: "left" }}>
+        <Typer
+          text="experience"
+          as="h2"
+          fps={20}
+          style={{ display: "block", fontFamily: DISPLAY, fontSize: "clamp(30px, 6vw, 70px)", fontWeight: 600, lineHeight: 1.04, letterSpacing: "-0.02em", color: INK, margin: 0 }}
+        />
+        <div style={{ marginTop: "clamp(28px, 4vw, 44px)", borderTop: "1px solid rgba(74,64,70,0.1)" }}>
+          {EXPERIENCE.map((x) => (
+            <div key={x.place} style={{ display: "grid", gridTemplateColumns: isPhone ? "1fr" : "minmax(0, 1fr) auto", gap: isPhone ? "4px" : "6px 32px", padding: "clamp(22px, 3vw, 30px) 0", borderBottom: "1px solid rgba(74,64,70,0.1)" }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: "clamp(18px, 2vw, 22px)", color: INK }}>{x.place}</div>
+                <div style={{ fontFamily: BODY, fontWeight: 400, fontSize: 15, color: PINK, marginTop: 2 }}>{x.role}</div>
+              </div>
+              <div style={{ fontFamily: BODY, fontWeight: 300, fontSize: 13.5, color: MUTED, whiteSpace: "nowrap", gridRow: isPhone ? "auto" : "1" , gridColumn: isPhone ? "auto" : "2" }}>{x.when}</div>
+              {x.what ? (
+                <p style={{ gridColumn: "1 / -1", fontFamily: BODY, fontWeight: 300, fontSize: "clamp(14.5px, 1.5vw, 16px)", lineHeight: 1.7, color: INK, margin: "8px 0 0", maxWidth: 640 }}>{x.what}</p>
+              ) : null}
+            </div>
           ))}
         </div>
       </div>
@@ -1461,8 +1633,9 @@ function Site() {
       <TyperStyles />
       <Nav />
       <Hero />
-      <About />
       <Work />
+      <Experience />
+      <About />
       <Footer />
     </div>
   );

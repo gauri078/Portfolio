@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import SiteFooter from "./SiteFooter";
+import { SocialIcons } from "./Socials";
+import { CaseLayout, StepLabel, ProblemCard, StatRow, KeyLearning } from "./CaseShell";
 
 /*
   TapIn.jsx
@@ -24,6 +26,27 @@ const FRAME = "#EEF1DF"; // palest wash, for panels and screen backdrops
 const LINE = "#E2E6CD"; // hairline on the wash
 
 const SANS = "'Poppins', system-ui, -apple-system, sans-serif";
+
+// what the shared case study frame wears on this page
+const THEME = { ink: INK, muted: MUTED, accent: ACCENT, line: LINE, paper: PAPER, display: SANS, body: SANS };
+
+const META = [
+  ["role", "solo, end to end"],
+  ["timeline", "2 weeks"],
+  ["scope", "research to hi-fi prototype"],
+  ["tools", "figma"],
+  ["mentor", "parag sarma"],
+];
+
+const SECTIONS = [
+  { id: "overview", label: "overview" },
+  { id: "research", label: "research" },
+  { id: "personas", label: "personas" },
+  { id: "solution", label: "the solution" },
+  { id: "ia", label: "information architecture" },
+  { id: "screens", label: "screens" },
+  { id: "reflection", label: "reflection" },
+];
 
 /* ------------------------------------------------------------------ */
 /* viewport                                                            */
@@ -161,21 +184,25 @@ function Nav() {
         position: "fixed",
         top: isPhone ? 16 : "clamp(22px, 3.4vw, 38px)",
         right: isPhone ? 16 : "clamp(24px, 6vw, 72px)",
-        left: isPhone ? 16 : "auto",
+        left: isPhone ? 16 : "clamp(24px, 6vw, 72px)",
         zIndex: 100,
         display: "flex",
         alignItems: "center",
-        justifyContent: isPhone ? "space-between" : "flex-end",
-        gap: isPhone ? 12 : 26,
+        justifyContent: "space-between",
+        gap: 16,
+        pointerEvents: "none",
         transform: shown ? "translateY(0)" : "translateY(-160%)",
         transition: "transform 340ms cubic-bezier(.2,.8,.2,1)",
         willChange: "transform",
       }}
     >
-      <NavItem label="gauri" href="/" compact={isPhone} />
-      <NavItem label="about" href="/#about" compact={isPhone} />
-      <NavItem label="work" href="/#work" compact={isPhone} />
-      <NavItem label="contact" href="/#contact" compact={isPhone} />
+      <SocialIcons color={INK} hoverColor={ACCENT} size={isPhone ? 15 : 17} gap={isPhone ? 12 : 16} />
+      <div style={{ display: "flex", alignItems: "center", gap: isPhone ? 14 : 26, pointerEvents: "auto" }}>
+        <NavItem label="gauri" href="/" compact={isPhone} />
+        <NavItem label="about" href="/#about" compact={isPhone} />
+        <NavItem label="work" href="/#work" compact={isPhone} />
+        <NavItem label="contact" href="/#contact" compact={isPhone} />
+      </div>
     </nav>
   );
 }
@@ -365,7 +392,7 @@ function Title() {
         paddingBottom: 0,
       }}
     >
-      <Kicker>semester 6 · interaction design · 2 weeks</Kicker>
+      <Kicker>product design · 2025</Kicker>
       <Typer
         text="tapin"
         as="h1"
@@ -407,80 +434,34 @@ function Title() {
   );
 }
 
-/* two column meta strip */
-function Meta() {
-  const { isPhone } = useViewport();
-  const items = [
-    ["role", "solo, end to end"],
-    ["timeline", "2 weeks"],
-    ["scope", "research to hi-fi prototype"],
-    ["tools", "figma"],
-    ["mentor", "parag sarma"],
-    ["context", "anant national university"],
-  ];
-  return (
-    <Section>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)",
-          gap: "clamp(20px,3vw,34px)",
-        }}
-      >
-        {items.map(([k, v]) => (
-          <div key={k}>
-            <p
-              style={{
-                margin: "0 0 6px",
-                fontFamily: SANS,
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: MUTED,
-              }}
-            >
-              {k}
-            </p>
-            <p
-              style={{
-                margin: 0,
-                fontFamily: SANS,
-                fontSize: "clamp(15px,1.3vw,18px)",
-                fontWeight: 500,
-                color: INK,
-                textTransform: "lowercase",
-              }}
-            >
-              {v}
-            </p>
-          </div>
-        ))}
-      </div>
-    </Section>
-  );
-}
 
 function Overview() {
   return (
-    <Section>
-      <Kicker>the short version</Kicker>
+    <Section id="overview">
+      <StepLabel theme={THEME} n="01">overview</StepLabel>
       <Typer text="one product, two weeks, start to finish" size="clamp(28px,4vw,46px)" />
       <div style={{ height: "clamp(24px,3vw,36px)" }} />
+      <ProblemCard
+        theme={THEME}
+        statement="group projects keep collapsing into the same pattern: one person over works, another coasts, and a third stays quiet."
+        hmw="create a context in which every team member feels compelled to contribute meaningfully, regardless of team dynamics or personal preferences?"
+      />
+      <div style={{ height: "clamp(28px,4vw,44px)" }} />
       <P>
-        in college, group projects are meant to prepare students for real teamwork.
-        in practice they often collapse into the same pattern: one person over
-        works to protect quality, another coasts, and a third stays quiet with
-        ideas they never voice. tapin started from that friction and worked toward
-        a single question, how do you get everyone in a team to contribute
-        meaningfully, whatever their instincts are.
-      </P>
-      <P>
-        i ran the whole process on my own inside a two week window: interviews,
-        synthesis, secondary research, three personas with journeys, a problem
-        statement, and a full information architecture carried through to hi-fi
+        i ran the whole process on my own: interviews, synthesis, secondary research, three
+        personas, a problem statement, and an information architecture carried through to hi-fi
         screens.
       </P>
+      <StatRow
+        theme={THEME}
+        style={{ marginTop: "clamp(18px,3vw,30px)" }}
+        stats={[
+          ["2 weeks", "from first interview to hi-fi screens"],
+          ["10", "themes from affinity mapping"],
+          ["3", "personas the product had to work for"],
+          ["5", "spaces in the information architecture"],
+        ]}
+      />
     </Section>
   );
 }
@@ -504,8 +485,8 @@ function Primary() {
     "will still work solo on critical parts if the team is not aligning",
   ];
   return (
-    <Section>
-      <Kicker>primary research</Kicker>
+    <Section id="research">
+      <StepLabel theme={THEME} n="02">research</StepLabel>
       <Typer text="i started with my own classmates" size="clamp(26px,3.6vw,42px)" />
       <div style={{ height: "clamp(22px,3vw,32px)" }} />
       <P>
@@ -591,10 +572,7 @@ function Affinity() {
       <Typer text="ten themes underneath the noise" size="clamp(26px,3.6vw,42px)" />
       <div style={{ height: "clamp(22px,3vw,32px)" }} />
       <P>
-        i clustered every insight from both mindsets into affinity groups. the
-        same tensions kept surfacing on both sides, which told me the problem was
-        not solo people versus team people, it was a shared set of anxieties about
-        control, trust, and recognition that plays out differently per person.
+        the same tensions surfaced on both sides. the problem was not solo people versus team people, it was a shared anxiety about control, trust and recognition.
       </P>
       <div
         style={{
@@ -861,15 +839,12 @@ function Personas() {
     },
   ];
   return (
-    <Section>
-      <Kicker>three ways the problem shows up</Kicker>
+    <Section id="personas">
+      <StepLabel theme={THEME} n="03">personas</StepLabel>
       <Typer text="reet, meher, and varun" size="clamp(28px,4vw,46px)" />
       <div style={{ height: "clamp(18px,2.4vw,26px)" }} />
       <P>
-        the same underlying tension produces three very different people. framing
-        it through all three kept the solution honest, it had to work for the one
-        who does too much, the one who does too little, and the one who holds
-        back.
+        the same tension produces three very different people, so the solution had to work for the one who does too much, the one who does too little, and the one who holds back.
       </P>
       {people.map((p, i) => (
         <Persona key={p.name} index={i} {...p} />
@@ -878,49 +853,6 @@ function Personas() {
   );
 }
 
-function Problem() {
-  return (
-    <Section>
-      <div
-        style={{
-          background: ACCENT,
-          borderRadius: 20,
-          padding: "clamp(34px,5vw,64px)",
-        }}
-      >
-        <p
-          style={{
-            margin: "0 0 18px",
-            fontFamily: SANS,
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: "0.16em",
-            textTransform: "uppercase",
-            color: "#EEF1DF",
-          }}
-        >
-          problem statement
-        </p>
-        <p
-          style={{
-            margin: 0,
-            fontFamily: SANS,
-            fontSize: "clamp(22px,3.4vw,40px)",
-            lineHeight: 1.3,
-            fontWeight: 600,
-            color: PAPER,
-            textTransform: "lowercase",
-            maxWidth: 900,
-          }}
-        >
-          how might we create a context in which every team member feels compelled
-          to contribute meaningfully, regardless of team dynamics or personal
-          preferences?
-        </p>
-      </div>
-    </Section>
-  );
-}
 
 function Solution() {
   const { isPhone } = useViewport();
@@ -939,15 +871,12 @@ function Solution() {
     ],
   ];
   return (
-    <Section>
-      <Kicker>the solution</Kicker>
+    <Section id="solution">
+      <StepLabel theme={THEME} n="04">the solution</StepLabel>
       <Typer text="tapin" size="clamp(40px,7vw,84px)" />
       <div style={{ height: "clamp(20px,2.6vw,30px)" }} />
       <P>
-        tapin creates a safe space for students to understand their teammates,
-        express themselves, and contribute meaningfully, through personalised
-        icebreakers, team habit building prompts, and reflection tools. the aim is
-        simple, make teamwork less awkward and more intentional.
+        tapin helps students understand their teammates, speak up, and contribute, through personalised icebreakers, team habit prompts and reflection tools. the aim: make teamwork less awkward and more intentional.
       </P>
       <div
         style={{
@@ -1019,8 +948,8 @@ function Solution() {
 /* information architecture, placeholder image slot */
 function IA() {
   return (
-    <Section>
-      <Kicker>information architecture</Kicker>
+    <Section id="ia">
+      <StepLabel theme={THEME} n="05">information architecture</StepLabel>
       <Typer text="how the app is organised" size="clamp(26px,3.6vw,42px)" />
       <div style={{ height: "clamp(22px,3vw,32px)" }} />
       <P>
@@ -1101,8 +1030,8 @@ function Screens() {
     ],
   ];
   return (
-    <Section>
-      <Kicker>hi-fi screens</Kicker>
+    <Section id="screens">
+      <StepLabel theme={THEME} n="06">screens</StepLabel>
       <Typer text="the product, screen by screen" size="clamp(26px,3.6vw,42px)" />
       <div style={{ height: "clamp(12px,2vw,20px)" }} />
       {groups.map(([h, b, screens], gi) => (
@@ -1145,22 +1074,14 @@ function Screens() {
 
 function Reflection() {
   return (
-    <Section>
-      <Kicker>reflection</Kicker>
-      <Typer text="what two weeks taught me" size="clamp(26px,3.6vw,42px)" />
-      <div style={{ height: "clamp(22px,3vw,32px)" }} />
-      <P>
-        the constraint was the point. two weeks forced me to move from interviews
-        to a defensible problem statement fast, and to trust synthesis instead of
-        gathering endlessly. building for three opposite personas kept the concept
-        from bending toward any one type of student.
-      </P>
-      <P>
-        if i took this further, i would test the icebreakers and the contribution
-        views with real teams mid project, the two features that carry the most
-        weight against the problem statement, and see whether visible contribution
-        actually shifts behaviour rather than just measuring it.
-      </P>
+    <Section id="reflection">
+      <StepLabel theme={THEME} n="07">reflection</StepLabel>
+      <KeyLearning theme={THEME} quote="the constraint was the point.">
+        two weeks forced me from interviews to a defensible problem statement fast, and to trust
+        synthesis instead of gathering endlessly. next, i would test the icebreakers and
+        contribution views with real teams mid project, to see whether visible contribution
+        actually shifts behaviour.
+      </KeyLearning>
     </Section>
   );
 }
@@ -1174,27 +1095,25 @@ export default function TapIn() {
       style={{
         background: PAPER,
         minHeight: "100vh",
-        overflowX: "hidden",
+        overflowX: "clip",
       }}
     >
       <Nav />
-      <Title />
-      <Meta />
-      <ThreadRule />
-      <Overview />
-      <ThreadRule />
-      <Primary />
-      <Affinity />
-      <Secondary />
-      <ThreadRule />
-      <Personas />
-      <ThreadRule />
-      <Problem />
-      <Solution />
-      <IA />
-      <Screens />
-      <ThreadRule />
-      <Reflection />
+      <CaseLayout theme={THEME} name="tapin" meta={META} sections={SECTIONS} header={<Title />} top={100}>
+        <Overview />
+        <ThreadRule />
+        <Primary />
+        <Affinity />
+        <Secondary />
+        <ThreadRule />
+        <Personas />
+        <ThreadRule />
+        <Solution />
+        <IA />
+        <Screens />
+        <ThreadRule />
+        <Reflection />
+      </CaseLayout>
       <div style={{ height: "clamp(60px,8vw,110px)" }} />
       <SiteFooter tint={ACCENT} heading="let's tap in" />
     </main>

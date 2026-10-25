@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { SocialIcons } from "./Socials";
+import { CaseLayout, StepLabel, ProblemCard, StatRow, KeyLearning } from "./CaseShell";
 
 /**
  * Driver Ben, case study page.
  * Built on the portfolio's own infrastructure: same palette, Poppins type,
  * Typer reveal, and the exact Nav + Footer (orchid displacement) from the site.
  *
- * Layout: Nav -> Title -> Context/Objective -> method marquee ->
- *         Double Diamond (Discover/Define/Develop/Deliver) -> Footer.
+ * Layout: Nav -> case frame (sidebar + Title, Overview, Double Diamond
+ *         phases, Takeaway) -> Footer.
  */
 
 /* =========================== TOKENS =========================== */
@@ -633,21 +635,25 @@ function Nav() {
         position: "fixed",
         top: isPhone ? 16 : "clamp(22px, 3.4vw, 38px)",
         right: isPhone ? 16 : "clamp(24px, 6vw, 72px)",
-        left: isPhone ? 16 : "auto",
+        left: isPhone ? 16 : "clamp(24px, 6vw, 72px)",
         zIndex: 100,
         display: "flex",
         alignItems: "center",
-        justifyContent: isPhone ? "space-between" : "flex-end",
-        gap: isPhone ? 12 : 26,
+        justifyContent: "space-between",
+        gap: 16,
+        pointerEvents: "none",
         transform: shown ? "translateY(0)" : "translateY(-160%)",
         transition: "transform 340ms cubic-bezier(.2,.8,.2,1)",
         willChange: "transform",
       }}
     >
-      <NavItem label="gauri" href="/" compact={isPhone} />
-      <NavItem label="about" href="/#about" compact={isPhone} />
-      <NavItem label="work" href="/#work" compact={isPhone} />
-      <NavItem label="contact" target="contact" compact={isPhone} />
+      <SocialIcons color={INK} hoverColor={PINK} size={isPhone ? 15 : 17} gap={isPhone ? 12 : 16} />
+      <div style={{ display: "flex", alignItems: "center", gap: isPhone ? 14 : 26, pointerEvents: "auto" }}>
+        <NavItem label="gauri" href="/" compact={isPhone} />
+        <NavItem label="about" href="/#about" compact={isPhone} />
+        <NavItem label="work" href="/#work" compact={isPhone} />
+        <NavItem label="contact" target="contact" compact={isPhone} />
+      </div>
     </nav>
   );
 }
@@ -756,6 +762,48 @@ function Footer() {
 
 /* ========================= CASE STUDY ========================= */
 
+// what the shared case study frame wears on this page
+const THEME = { ink: INK, muted: MUTED, accent: PINK, line: BLUSH, paper: PAPER, display: DISPLAY, body: BODY };
+
+const META = [
+  ["format", "speculative research film"],
+  ["timeline", "1 week, 16 to 23 april 2024"],
+  ["team", "six, with abhineet kumar, riya khattri, purva tekale, anuja malu and sania goidani"],
+  ["methods", "field research, empathy mapping, speculative scenarios, film"],
+];
+
+const SECTIONS = [
+  { id: "overview", label: "overview" },
+  { id: "process", label: "the process" },
+  { id: "discover", label: "discover" },
+  { id: "define", label: "define" },
+  { id: "develop", label: "develop" },
+  { id: "deliver", label: "deliver" },
+  { id: "takeaway", label: "takeaway" },
+];
+
+// The film, and a still from it saved locally for the cover.
+const FILM_ID = "4EpjaxHdDb4";
+const FILM_STILL = "/driverben-still.jpg";
+
+// Hides itself if the file is missing, so a placeholder never shows as a broken image.
+function Shot({ src, alt, caption }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  return (
+    <figure style={{ margin: "0 0 32px" }}>
+      <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${BLUSH}` }}>
+        <img src={src} alt={alt} onError={() => setOk(false)} style={{ width: "100%", display: "block" }} loading="lazy" />
+      </div>
+      {caption ? (
+        <figcaption style={{ fontFamily: BODY, fontWeight: 300, fontSize: 13, color: MUTED, margin: "10px 0 0" }}>
+          {caption}
+        </figcaption>
+      ) : null}
+    </figure>
+  );
+}
+
 function Eyebrow({ children }) {
   return (
     <span style={{ fontFamily: BODY, fontSize: 12, fontWeight: 500, letterSpacing: "0.26em", textTransform: "uppercase", color: PINK }}>
@@ -773,63 +821,51 @@ function Title() {
   const { isPhone } = useViewport();
   return (
     <header id="hero" style={{ ...SHELL, paddingTop: isPhone ? 120 : "clamp(140px, 18vh, 220px)" }}>
-      <Eyebrow>research</Eyebrow>
+      <Eyebrow>research film · 2024</Eyebrow>
       <Typer as="h1" text="driverben" once style={H1} />
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 26px", margin: "26px 0 0", fontFamily: BODY, fontWeight: 300, fontSize: 15, color: MUTED }}>
-        <span>16 April 2024 to 23 April 2024</span>
-        <span style={{ color: BLUSH }}>/</span>
-        <span>speculative research film, team of six</span>
-      </div>
-      <p style={{ margin: "12px 0 0", fontFamily: BODY, fontWeight: 300, fontSize: 13.5, letterSpacing: "0.03em", color: MUTED }}>
-        gauri tsering sharma, abhineet kumar, riya khattri, purva tekale, anuja malu, sania goidani
+      <p style={{ margin: "18px 0 0", fontFamily: BODY, fontWeight: 300, fontSize: "clamp(16px, 1.8vw, 20px)", lineHeight: 1.5, color: MUTED, maxWidth: 560 }}>
+        A Hindi diary film about the women training to become professional drivers.
       </p>
-      <div style={{ marginTop: "clamp(38px,6vw,66px)", borderRadius: 14, overflow: "hidden", border: `1px solid ${BLUSH}`, background: PAPER }}>
-        <img src="https://framerusercontent.com/images/PZwJMRXOFdz1QymchucbjrYWOmQ.png" alt="Driver Ben cover" style={{ width: "100%", display: "block" }} loading="lazy" />
-      </div>
+      <a
+        href="#deliver"
+        style={{ display: "block", position: "relative", marginTop: "clamp(34px,5vw,56px)", borderRadius: 14, overflow: "hidden", border: `1px solid ${BLUSH}`, background: INK, aspectRatio: "2 / 1" }}
+        aria-label="Watch the film"
+      >
+        <img
+          src={FILM_STILL}
+          alt="A still from the film: hands opening the diary on a floral bedsheet."
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 45%", display: "block" }}
+        />
+      </a>
     </header>
   );
 }
 
-function Intro() {
+function Overview() {
   return (
-    <section style={{ ...SHELL, paddingTop: "clamp(70px,10vw,130px)", paddingBottom: "clamp(20px,4vw,40px)", display: "flex", flexWrap: "wrap", gap: "clamp(40px,6vw,80px)" }}>
-      <div style={{ flex: "1 1 320px" }}>
-        <Typer as="h2" text="context" style={H2} />
-        <p style={PARA}>
-          Our brief was to understand the issues facing stakeholders in the Driver Ben initiative,
-          a programme training women to become professional drivers, and to communicate its impact
-          through a creative medium that would make its significance felt.
-        </p>
-      </div>
-      <div style={{ flex: "1 1 320px" }}>
-        <Typer as="h2" text="objective" style={H2} />
-        <p style={PARA}>
-          Get close to the real experience of the initiative, represent the challenges its
-          stakeholders face without flattening them, and surface insights that could genuinely
-          improve the programme.
-        </p>
-      </div>
+    <section id="overview" style={{ ...SHELL, paddingTop: "clamp(70px,10vw,120px)" }}>
+      <StepLabel theme={THEME} n="01">overview</StepLabel>
+      <ProblemCard
+        theme={THEME}
+        label="the brief"
+        statement="Understand what stands in the way of women training to become professional drivers, and make the programme's impact felt."
+        hmwLabel="objective"
+        hmw="get close to the real experience, represent the challenges without flattening them, and surface insights that could improve the programme."
+      />
+      <StatRow
+        theme={THEME}
+        style={{ marginTop: "clamp(40px,6vw,64px)" }}
+        stats={[
+          ["1 week", "from first field visit to the finished film"],
+          ["6", "people on the team"],
+          ["5", "stakeholder groups mapped"],
+          ["8", "methods across the double diamond"],
+        ]}
+      />
     </section>
   );
 }
 
-const METHODS = ["field research", "day-in-the-life", "empathy mapping", "stakeholder needs", "key insights", "speculative scenarios", "ideation", "a video film"];
-
-function Marquee() {
-  return (
-    <section style={{ borderTop: `1px solid ${BLUSH}`, borderBottom: `1px solid ${BLUSH}`, overflow: "hidden", padding: "26px 0", margin: "clamp(30px,5vw,60px) 0" }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes db-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}.db-track{display:inline-flex;gap:40px;white-space:nowrap;animation:db-marq 34s linear infinite}@media (prefers-reduced-motion:reduce){.db-track{animation:none}}` }} />
-      <div className="db-track">
-        {[...METHODS, ...METHODS].map((m, i) => (
-          <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 40 }}>
-            <span style={{ fontFamily: DISPLAY, fontWeight: 500, fontSize: "clamp(20px,2.6vw,30px)", color: INK }}>{m}</span>
-            <span style={{ color: PINK, fontSize: 11 }}>&#10022;</span>
-          </span>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 // Double diamond, geometry solved from the source SVG, themed to the palette.
 function DoubleDiamond() {
@@ -861,9 +897,9 @@ function DoubleDiamond() {
   );
 }
 
-function Phase({ index, name, sub, children }) {
+function Phase({ id, index, name, sub, children }) {
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "clamp(24px,5vw,64px)", padding: "clamp(40px,6vw,72px) 0", borderTop: `1px solid ${BLUSH}` }}>
+    <div id={id} style={{ display: "flex", flexWrap: "wrap", gap: "clamp(24px,5vw,64px)", padding: "clamp(40px,6vw,72px) 0", borderTop: `1px solid ${BLUSH}` }}>
       <div style={{ flex: "0 0 180px", minWidth: 140 }}>
         <div style={{ fontFamily: BODY, fontSize: 12, fontWeight: 500, letterSpacing: "0.2em", color: PINK }}>{index}</div>
         <Typer as="h3" text={name} style={H3} />
@@ -885,36 +921,30 @@ function Sub({ title, children }) {
 
 function Process() {
   return (
-    <section style={{ ...SHELL, paddingTop: "clamp(50px,7vw,90px)", paddingBottom: "clamp(30px,5vw,60px)" }}>
-      <Eyebrow>the process</Eyebrow>
+    <section id="process" style={{ ...SHELL, paddingTop: "clamp(70px,9vw,110px)", paddingBottom: "clamp(30px,5vw,60px)" }}>
+      <StepLabel theme={THEME} n="02">the process</StepLabel>
       <Typer as="h2" text="double diamond" style={{ ...H2, margin: "14px 0 clamp(34px,5vw,58px)" }} />
       <DoubleDiamond />
-      <Phase index="01" name="discover" sub="research">
+      <Phase id="discover" index="03" name="discover" sub="research">
         <Sub title="field visits">
-          Early observations surfaced two forces at once: safety concerns and social disapproval
-          weighing on the women, and blunt practical friction like the distance to the training
-          ground. Those first notes set the questions for everything after.
+          Two forces showed up at once: safety concerns and social disapproval weighing on the
+          women, and blunt practical friction like the distance to the training ground.
         </Sub>
         <Sub title="day-in-the-life">
-          Following trainees through an ordinary day showed how those concerns bite, in the constant
-          negotiation between household responsibilities and getting to training. The barrier was not
-          ambition; it was logistics and the weight of the day.
+          Following trainees through an ordinary day showed the constant negotiation between
+          household responsibilities and getting to training.
         </Sub>
       </Phase>
-      <Phase index="02" name="define" sub="synthesis">
+      <Phase id="define" index="04" name="define" sub="synthesis">
         <Sub title="empathy mapping">
-          We mapped every stakeholder, trainees, trainers, families, community members and organisers,
-          capturing what each felt, struggled with and needed. Side by side, the emotional and
-          practical pressure points became impossible to miss.
+          We mapped what trainees, trainers, families, community members and organisers each felt,
+          struggled with and needed.
         </Sub>
-        <figure style={{ margin: "0 0 32px" }}>
-          <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${BLUSH}` }}>
-            <img src="/driverben-empathy-map.png" alt="Physical empathy map for Amita Ben, organised into think & feel, say, pain, hear, do and gain" style={{ width: "100%", display: "block" }} loading="lazy" />
-          </div>
-          <figcaption style={{ fontFamily: BODY, fontWeight: 300, fontSize: 13, color: MUTED, margin: "10px 0 0" }}>
-            The empathy map built by hand, mapping Amita Ben across think &amp; feel, say, pain, hear, do and gain.
-          </figcaption>
-        </figure>
+        <Shot
+          src="/driverben-empathy-map.png"
+          alt="Physical empathy map for Amita Ben, organised into think & feel, say, pain, hear, do and gain"
+          caption="The empathy map built by hand, mapping Amita Ben across think & feel, say, pain, hear, do and gain."
+        />
         <h4 style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 21, color: INK, margin: "0 0 12px" }}>stakeholder needs</h4>
         <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px" }}>
           {[["Program organisers","sustainability and impact, with every stakeholder supported."],["Trainers","resources, effective methods and logistical backing."],["Trainees","quality training, safety, and support to balance it with home."],["Family members","financial and emotional footing to let trainees take part."],["Community members","positive engagement that grows acceptance of the programme."]].map(([w,n],i) => (
@@ -934,35 +964,42 @@ function Process() {
           ))}
         </div>
       </Phase>
-      <Phase index="03" name="develop" sub="ideation">
+      <Phase id="develop" index="05" name="develop" sub="ideation">
         <Sub title="speculative scenarios">
-          We built and stress-tested "what if" scenarios around the programme, using them to spot
-          where it could break, where it could reach further, and what a better version might be.
+          "What if" scenarios showed where the programme could break, and where it could reach
+          further.
         </Sub>
         <Sub title="the idea, a diary">
-          We scripted the findings as a diary written in Hindi, given a homely texture with tea-cup
-          stains and real pamphlets tucked into its pages. As its subject ages, the decoration is
-          gradually stripped back, the pages growing quieter, so the object itself carries her growth.
+          We scripted the findings as a Hindi diary, with tea-cup stains and real pamphlets in its
+          pages. As its subject grows, the decoration is stripped back, so the object itself carries
+          her growth.
         </Sub>
-        <p style={{ fontFamily: BODY, fontWeight: 300, fontSize: 16.5, lineHeight: 1.65, color: INK, margin: 0, maxWidth: 560 }}>
-          The research became a window into lives like Amita Ben's, someone who met real resistance and
-          still found hope in the programme. Through a discovered diary, the film follows a girl's
-          struggle and her eventual arrival as a driver.
-        </p>
       </Phase>
-      <Phase index="04" name="deliver" sub="implementation">
+      <Phase id="deliver" index="06" name="deliver" sub="implementation">
         <Sub title="the video film">
-          The final piece is a short film that hands the story back to the people inside it, a reminder
-          of what programmes like Driver Ben can do when the support around a person holds.
+          Through a discovered diary, the film follows a girl's struggle and her eventual arrival as
+          a driver.
         </Sub>
         <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 14, overflow: "hidden", border: `1px solid ${BLUSH}`, marginTop: 6 }}>
-          <iframe src="https://www.youtube.com/embed/4EpjaxHdDb4?iv_load_policy=3&rel=0&modestbranding=1&playsinline=1" title="Driver Ben film" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+          <iframe src={`https://www.youtube.com/embed/${FILM_ID}?iv_load_policy=3&rel=0&modestbranding=1&playsinline=1`} title="Driver Ben film" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
         </div>
       </Phase>
     </section>
   );
 }
 
+
+function Takeaway() {
+  return (
+    <section id="takeaway" style={{ ...SHELL, paddingTop: "clamp(40px,6vw,70px)", paddingBottom: "clamp(60px,9vw,120px)" }}>
+      <StepLabel theme={THEME} n="07">takeaway</StepLabel>
+      <KeyLearning theme={THEME} quote="The barrier was not ambition. It was logistics and the weight of the day.">
+        The film hands the story back to the people inside it, a reminder of what programmes like
+        Driver Ben can do when the support around a person holds.
+      </KeyLearning>
+    </section>
+  );
+}
 
 /* ============================ PAGE ============================ */
 
@@ -978,10 +1015,11 @@ export default function DriverBen() {
     <div style={{ background: PAPER, color: INK, fontFamily: BODY }}>
       <TyperStyles />
       <Nav />
-      <Title />
-      <Intro />
-      <Marquee />
-      <Process />
+      <CaseLayout theme={THEME} name="driverben" meta={META} sections={SECTIONS} header={<Title />} top={100}>
+        <Overview />
+        <Process />
+        <Takeaway />
+      </CaseLayout>
       <Footer />
     </div>
   );

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import SiteFooter from "./SiteFooter";
+import { SocialIcons } from "./Socials";
+import { CaseLayout, StepLabel, ProblemCard, StatRow, KeyLearning } from "./CaseShell";
 
 /**
  * Untangling the Knots, Overloaded Laundry System
@@ -25,6 +27,32 @@ const FRAME = "#EDEFF6"; // soft indigo wash, gigamap panel
 const DISPLAY = "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif";
 const BODY = "'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif";
 /* the footer is shared with the main site, so it keeps the site's own type */
+// what the shared case study frame wears on this page
+const THEME = {
+  ink: INK, muted: MUTED, accent: ACCENT, line: TINT, paper: PAPER,
+  display: "'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif",
+  body: "'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif",
+};
+
+const META = [
+  ["role", "On-ground research, documentation, solution development and implementation strategy"],
+  ["team", "Six designers, with Abhineet Kumar, Purva Tekale, Riya Khattri, Shreya Shinde and Tanishka Vyas"],
+  ["guided by", "Avni Sethi"],
+  ["output", "Gigamap, systems analysis, working RFID prototype"],
+];
+
+const SECTIONS = [
+  { id: "overview", label: "overview" },
+  { id: "process", label: "the process" },
+  { id: "stakeholders", label: "stakeholders" },
+  { id: "system", label: "mapping the system" },
+  { id: "gigamap", label: "the gigamap" },
+  { id: "idea", label: "the idea" },
+  { id: "testing", label: "testing" },
+  { id: "outcome", label: "outcome" },
+  { id: "reflection", label: "reflection" },
+];
+
 const SITE_DISPLAY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
 const SITE_INK = INK;
 const SITE_PAPER = PAPER;
@@ -498,6 +526,13 @@ function Bleed({ src, alt, caption, height = "clamp(280px,52vw,620px)" }) {
 
 function Nav() {
   const [shown, setShown] = useState(true);
+  const [phone, setPhone] = useState(false);
+  useEffect(() => {
+    const read = () => setPhone(window.innerWidth < 640);
+    read();
+    window.addEventListener("resize", read);
+    return () => window.removeEventListener("resize", read);
+  }, []);
   const lastY = useRef(0);
 
   useEffect(() => {
@@ -530,7 +565,7 @@ function Nav() {
 
   const link = {
     fontFamily: BODY,
-    fontSize: 15,
+    fontSize: phone ? 13 : 15,
     color: INK,
     textDecoration: "none",
     textTransform: "lowercase",
@@ -545,8 +580,9 @@ function Nav() {
         zIndex: 40,
         display: "flex",
         justifyContent: "flex-end",
-        gap: 20,
-        padding: "22px clamp(20px,5vw,64px)",
+        alignItems: "center",
+        gap: phone ? 14 : 20,
+        padding: phone ? "16px 16px" : "22px clamp(20px,5vw,64px)",
         background: `${PAPER}f2`,
         backdropFilter: "blur(8px)",
         transform: shown ? "translateY(0)" : "translateY(-100%)",
@@ -554,18 +590,21 @@ function Nav() {
         willChange: "transform",
       }}
     >
+      <div style={{ marginRight: "auto", display: "flex" }}>
+        <SocialIcons color={INK} hoverColor={ACCENT} size={phone ? 15 : 17} gap={phone ? 12 : 16} />
+      </div>
       <a href="/" style={link}>
         gauri
       </a>
-      <span style={{ color: TINT }}>·</span>
+      {phone ? null : <span style={{ color: TINT }}>·</span>}
       <a href="/#about" style={link}>
         about
       </a>
-      <span style={{ color: TINT }}>·</span>
+      {phone ? null : <span style={{ color: TINT }}>·</span>}
       <a href="/#work" style={link}>
         work
       </a>
-      <span style={{ color: TINT }}>·</span>
+      {phone ? null : <span style={{ color: TINT }}>·</span>}
       <a href="mailto:gauritseringsharma@gmail.com" style={link}>
         contact
       </a>
@@ -576,27 +615,9 @@ function Nav() {
 /* ============================= TITLE ============================== */
 
 function Title() {
-  const metaLabel = {
-    fontFamily: BODY,
-    fontSize: 11.5,
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    color: MUTED,
-    marginBottom: 7,
-  };
-  const metaValue = { fontFamily: BODY, fontSize: 15, lineHeight: 1.6, color: INK };
-
-  const meta = [
-    ["course", "Design Ecosystems, Semester 07\nMDes Interaction Design, Anant National University"],
-    ["guided by", "Avni Sethi"],
-    ["my role", "On ground research, documentation, solution development and implementation strategy"],
-    ["team", "Abhineet Kumar, Gauri Tsering Sharma, Purva Tekale, Riya Khattri, Shreya Shinde, Tanishka Vyas"],
-    ["output", "Gigamap, systems analysis, working RFID prototype"],
-  ];
-
   return (
     <Section style={{ paddingTop: "clamp(96px,9vw,130px)" }}>
-      <Eyebrow>systems design</Eyebrow>
+      <Eyebrow>systems design · 2025</Eyebrow>
 
       <Typer
         as="h1"
@@ -605,7 +626,7 @@ function Title() {
         style={{
           fontFamily: DISPLAY,
           fontWeight: 600,
-          fontSize: "clamp(40px,8.6vw,104px)",
+          fontSize: "clamp(40px,7.4vw,96px)",
           lineHeight: 1.02,
           letterSpacing: "-0.02em",
           margin: "0 0 18px",
@@ -619,7 +640,7 @@ function Title() {
           fontWeight: 500,
           fontSize: "clamp(19px,2.6vw,30px)",
           color: MUTED,
-          margin: "0 0 clamp(40px,6vw,72px)",
+          margin: 0,
           textTransform: "lowercase",
           maxWidth: "24ch",
           lineHeight: 1.25,
@@ -627,23 +648,6 @@ function Title() {
       >
         mapping an overloaded hostel laundry system
       </p>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))",
-          gap: "28px 32px",
-          borderTop: `1px solid ${TINT}`,
-          paddingTop: 30,
-        }}
-      >
-        {meta.map(([label, value]) => (
-          <div key={label}>
-            <div style={metaLabel}>{label}</div>
-            <div style={{ ...metaValue, whiteSpace: "pre-line" }}>{value}</div>
-          </div>
-        ))}
-      </div>
     </Section>
   );
 }
@@ -669,8 +673,8 @@ function Intro() {
         caption="One day's intake, waiting on the floor."
       />
 
-      <Section>
-        <Eyebrow>the problem</Eyebrow>
+      <Section id="overview">
+        <StepLabel theme={THEME} n="01">overview</StepLabel>
         <H2>we picked a system we were already stuck inside</H2>
 
         <div
@@ -683,20 +687,7 @@ function Intro() {
         >
           <div>
             <P>
-              The hostel laundry service is not a side detail of student life. It is the thing
-              everyone touches every week, and the thing everyone complains about. Clothes came back
-              late, came back damaged, or did not come back at all. Nobody could tell you why,
-              because nobody could see the whole of it.
-            </P>
-            <P>
-              That was the appeal. We were not studying a system from the outside. We were six
-              students inside it, with the same missing shirts as everyone else. The brief for
-              Design Ecosystems asked us to read a real system through its variables, feedback loops
-              and leverage points rather than its symptoms, and this one was close enough to touch.
-            </P>
-            <P muted>
-              Overloaded Laundry System became the central variable, the root node that everything
-              else in the map eventually hung from.
+              The hostel laundry is the thing everyone touches every week, and the thing everyone complains about. We were six students inside it, with the same missing shirts as everyone else.
             </P>
           </div>
 
@@ -735,32 +726,13 @@ function Intro() {
           </div>
         </div>
 
-        <div
-          style={{
-            marginTop: "clamp(48px,7vw,84px)",
-            padding: "clamp(28px,4vw,44px)",
-            background: "#fff",
-            border: `1px solid ${TINT}`,
-            borderLeft: `3px solid ${ACCENT}`,
-            borderRadius: 0,
-          }}
-        >
-          <Eyebrow>research question</Eyebrow>
-          <p
-            style={{
-              fontFamily: DISPLAY,
-              fontWeight: 500,
-              fontSize: "clamp(19px,2.4vw,28px)",
-              lineHeight: 1.4,
-              margin: 0,
-              maxWidth: "40ch",
-            }}
-          >
-            What factors contribute to the inefficiency and overload in the college laundry system,
-            and how can process improvements create a fairer and more efficient experience for both
-            students and staff?
-          </p>
-        </div>
+        <ProblemCard
+          theme={THEME}
+          style={{ marginTop: "clamp(48px,7vw,84px)" }}
+          statement="Clothes came back late, came back damaged, or did not come back at all, and nobody could see why."
+          hmwLabel="research question"
+          hmw="What makes the laundry system inefficient and overloaded, and how can process changes make it fairer and faster for students and staff?"
+        />
       </Section>
     </>
   );
@@ -786,15 +758,11 @@ const STEPS = [
 
 function Walkthrough() {
   return (
-    <Section>
-      <Eyebrow>evidence</Eyebrow>
+    <Section id="process">
+      <StepLabel theme={THEME} n="02">the process</StepLabel>
       <H2>thirteen steps, eleven of them manual</H2>
       <P>
-        Before mapping anything we walked the process end to end and photographed every stage, from
-        a bag being filled in a hostel room to the register being signed a week later. Writing it
-        out as a sequence made the fragility obvious. A single garment changes hands, piles and
-        rooms more than a dozen times, and until the very last step there is no record of it
-        anywhere except a handwritten room number.
+        We walked the process end to end and photographed every stage. A single garment changes hands more than a dozen times, and until the last step there is no record of it except a handwritten room number.
       </P>
 
       <div
@@ -1216,21 +1184,11 @@ function StakeholderMap() {
 
 function Stakeholders() {
   return (
-    <Section>
-      <Eyebrow>who is actually in this</Eyebrow>
+    <Section id="stakeholders">
+      <StepLabel theme={THEME} n="03">stakeholders</StepLabel>
       <H2>who the system touches, and who can change it</H2>
       <P>
-        Redesigning the flow of clothes meant nothing without understanding the people moving them.
-        We ran interviews, site observations and a lot of informal conversation with staff and
-        students, then sorted everyone by how much of the system they touch and how much of it they
-        can change.
-      </P>
-      <P>
-        The gap between those two things turned out to be the story. Students and laundry staff sit
-        closest to the failure and have the least authority over it, while administration sets the
-        policy from a distance and rarely sees the pile on the floor. Wardens appear twice on this
-        map, once as people affected by the system and once as people governing it, which is exactly
-        why complaints stall where they do.
+        We sorted everyone by how much of the system they touch and how much of it they can change. Students and laundry staff sit closest to the failure and have the least authority over it.
       </P>
 
       <div
@@ -1342,14 +1300,11 @@ const CLUSTERS = [
 function Clusters() {
   const [open, setOpen] = useState("01");
   return (
-    <Section>
-      <Eyebrow>clustering</Eyebrow>
+    <Section id="system">
+      <StepLabel theme={THEME} n="04">mapping the system</StepLabel>
       <H2>thirty six variables, five clusters</H2>
       <P>
-        Listing every variable we could find produced a flat mess. Grouping them into clusters was
-        what made the system legible, because it showed which parts of the problem were behavioural,
-        which were operational, which were structural, and which were only ever symptoms. Each
-        cluster contains variables that either add pressure to the system or release it.
+        Grouping every variable into clusters made the system legible: what was behavioural, what was operational, what was structural, and what was only ever a symptom.
       </P>
 
       <div style={{ marginTop: 44, borderTop: `1px solid ${TINT}` }}>
@@ -1524,10 +1479,7 @@ function SystemMap() {
       <Eyebrow>system mapping</Eyebrow>
       <H2>drawing it before fixing it</H2>
       <P>
-        This stage was deliberately not about solutions. We drew the whole system by hand, on site,
-        annotating flows, blocks and loops as we found them rather than as we assumed them. Working
-        on paper kept it honest. You cannot quietly tidy a mess when you are drawing it in front of
-        the people who live in it.
+        We drew the whole system by hand, on site, marking flows, blocks and loops as we found them rather than as we assumed them.
       </P>
 
       <div style={{ marginTop: 44 }}>
@@ -1541,9 +1493,7 @@ function SystemMap() {
       <div style={{ marginTop: "clamp(48px,7vw,84px)" }}>
         <H3>influence map, effects traced back to causes</H3>
         <P style={{ marginBottom: 34 }}>
-          Alongside the visual map we built an influence map to trace each surface complaint back
-          through the system to the variables actually producing it. Every effect had more than one
-          cause, and most causes sat several steps away from the thing students were annoyed about.
+          An influence map then traced each complaint back to the variables producing it. Most causes sat several steps away from what students were annoyed about.
         </P>
         <div
           style={{
@@ -1614,10 +1564,7 @@ function SitesAndLeverage() {
       <Eyebrow>where to push</Eyebrow>
       <H2>five sites, five leverage points</H2>
       <P>
-        Sites of intervention are the places where the system is visibly failing. Leverage points
-        are the places where a small, focused push produces disproportionate change. They are not
-        the same list, and telling them apart was the most useful thing this project taught me. The
-        logbook is where the pain shows. The rule enforcement is where the pressure releases.
+        Sites of intervention are where the system visibly fails. Leverage points are where a small push changes a lot: the logbook is where the pain shows, the rule enforcement is where the pressure releases.
       </P>
 
       <div
@@ -1739,19 +1686,11 @@ function Gigamap() {
 
   return (
     <>
-      <Section>
-        <Eyebrow>the gigamap</Eyebrow>
+      <Section id="gigamap">
+        <StepLabel theme={THEME} n="05">the gigamap</StepLabel>
         <H2>untangling the knots</H2>
         <P>
-          The gigamap is the whole project held in one frame. Stakeholders, clusters, causes,
-          effects, sites of intervention and leverage points all sit in a single interconnected
-          diagram, so you can trace a complaint at the surface all the way down to the variable
-          producing it without leaving the page.
-        </P>
-        <P>
-          We built it as a tree threaded through with lines, because that is what the system felt
-          like from inside. Not a flowchart with a beginning and an end, but something knotted,
-          where pulling one thread tightens three others.
+          The whole project in one frame, so you can trace a complaint at the surface down to the variable producing it. We drew it as a tree threaded with lines, because that is how the system felt from inside: pull one thread and three others tighten.
         </P>
 
         <div
@@ -1915,14 +1854,11 @@ const IDEAS = [
 
 function IdeaPool() {
   return (
-    <Section>
-      <Eyebrow>ideation</Eyebrow>
+    <Section id="idea">
+      <StepLabel theme={THEME} n="06">the idea</StepLabel>
       <H2>twenty ideas against five sites</H2>
       <P>
-        We ideated against the sites of intervention rather than against the complaints, which kept
-        the ideas structural instead of cosmetic. Some are technological, some are just a poster in
-        the right corridor. Both were worth keeping on the table, because a system this manual can
-        be moved by very cheap things.
+        We ideated against the sites of intervention, not the complaints, which kept the ideas structural instead of cosmetic.
       </P>
 
       <div style={{ marginTop: 44 }}>
@@ -1979,9 +1915,7 @@ function Shortlist() {
       <Eyebrow>shortlisting</Eyebrow>
       <H2>two, chosen to work together</H2>
       <P>
-        We shortlisted on feasibility, expected impact, cost and alignment with the leverage points.
-        The two that survived are deliberately a pair. One makes the system legible, the other makes
-        the rules legible. Either alone would have failed in a predictable way.
+        Two survived, deliberately as a pair. One makes the system legible, the other makes the rules legible.
       </P>
 
       <div
@@ -2051,21 +1985,14 @@ const FEEDBACK = [
 
 function Prototype() {
   return (
-    <Section>
-      <Eyebrow>implementation and testing</Eyebrow>
+    <Section id="testing">
+      <StepLabel theme={THEME} n="07">testing</StepLabel>
       <H2>we took it back to the man who does the washing</H2>
       <P>
-        The prototype started as an RFID scanner on an Arduino Uno and moved to an ESP32 once we
-        needed wireless, writing to a live Firebase interface. Abhineet built the technical rig. My
-        job was everything around it: getting us onto the laundry floor, running the session,
-        documenting what happened and translating what he had built into something a vendor could
-        actually judge.
+        Abhineet built the rig, an RFID scanner on an ESP32 writing to a live Firebase interface. My job was everything around it: getting us onto the laundry floor, running the session with the laundry manager, and documenting it.
       </P>
       <P>
-        That distinction mattered more than I expected. A working scanner proves the technology. It
-        does not prove the intervention. The only thing that could do that was standing at the
-        intake table and watching whether the person who logs hundreds of garments a week found it
-        faster than his pen.
+        A working scanner proves the technology, not the intervention. Only the person who logs hundreds of garments a week could tell us if it beat his pen.
       </P>
 
       <div
@@ -2187,11 +2114,7 @@ function TagDesign() {
       >
         <div>
           <P>
-            Every constraint on this object came from watching the process. It gets washed at high
-            temperature, it gets ironed, it gets handled by staff working at speed, and it belongs
-            to a student who will lose it if it is fiddly. So the tag is a flexible silicone strip
-            with a chip inside and a male snap that clicks into a female snap to close a loop around
-            the fabric.
+            It gets washed hot, ironed and handled at speed, so the tag is a flexible silicone strip with a chip inside and a snap that closes a loop around the fabric.
           </P>
           <P muted>
             No sewing, no pinning, no hole in anyone's shirt. On before the bag goes down, off
@@ -2265,10 +2188,7 @@ function Concerns() {
       <Eyebrow>peer review</Eyebrow>
       <H2>what the room pushed back on</H2>
       <P>
-        Presenting to students, hostel residents and faculty produced the sharpest questions of the
-        project, mostly about cost, durability and whether the rule could be gamed. Working the
-        answers out in public is what turned the proposal from a concept into something with a
-        defensible shape.
+        Presenting to students, residents and faculty drew the sharpest questions of the project, about cost, durability and whether the rule could be gamed.
       </P>
 
       <div style={{ marginTop: 40, borderTop: `1px solid ${TINT}` }}>
@@ -2340,28 +2260,38 @@ function Concerns() {
 
 /* =========================== REFLECTION =========================== */
 
+function Outcome() {
+  return (
+    <Section id="outcome">
+      <StepLabel theme={THEME} n="08">outcome</StepLabel>
+      <H2>the vendor said he would invest</H2>
+      <P>
+        The laundry contractor said he would put money into the system if the hostel formally
+        adopted it, and the model carries over to other hostels with the same service setup.
+      </P>
+      <StatRow
+        theme={THEME}
+        style={{ marginTop: "clamp(28px,4vw,44px)" }}
+        stats={[
+          ["11 / 13", "steps in the process done by hand"],
+          ["36", "variables mapped across five clusters"],
+          ["20 → 2", "ideas shortlisted into a working pair"],
+          ["₹200–300", "per student, per semester for reusable tags"],
+        ]}
+      />
+    </Section>
+  );
+}
+
 function Reflection() {
   return (
-    <Section>
-      <Eyebrow>reflection</Eyebrow>
-      <H2>the complaint is never the problem</H2>
-      <P>
-        Every student in that hostel could tell you the laundry was bad. Not one of us, before this,
-        could tell you why. The complaint was always about a specific missing shirt, and the answer
-        was always somewhere else entirely: in a staffing ratio, in a paper tag that dissolves at
-        sixty degrees, in a rule nobody had ever been told.
-      </P>
-      <P>
-        What systems mapping gave me was the discipline to keep going past the first plausible
-        cause. It is genuinely uncomfortable to draw a map for three weeks before you are allowed to
-        propose anything. It is also the only reason the proposal was any good, because by the time
-        we got to solutions we knew which of them were cosmetic.
-      </P>
-      <P>
-        The other thing I took from it is that the best version of this ends with a person, not a
-        prototype. The most useful hour of the whole project was the one spent watching a laundry
-        contractor hold our scanner and tell us what was wrong with the tag.
-      </P>
+    <Section id="reflection">
+      <StepLabel theme={THEME} n="09">reflection</StepLabel>
+      <KeyLearning theme={THEME} quote="The complaint is never the problem.">
+        Systems mapping gave me the discipline to keep going past the first plausible cause. And
+        the most useful hour of the project was watching a laundry contractor hold our scanner and
+        tell us what was wrong with the tag.
+      </KeyLearning>
     </Section>
   );
 }
@@ -2468,7 +2398,7 @@ export default function Laundry() {
         color: INK,
         fontFamily: BODY,
         minHeight: "100vh",
-        overflowX: "hidden",
+        overflowX: "clip",
       }}
     >
       <TyperStyles />
@@ -2481,25 +2411,28 @@ export default function Laundry() {
       `}</style>
 
       <Nav />
-      <Title />
-      <Intro />
-      <Walkthrough />
-      <ThreadRule />
-      <Stakeholders />
-      <Clusters />
-      <SystemMap />
-      <ThreadRule flip />
-      <SitesAndLeverage />
-      <Gigamap />
-      <ThreadRule />
-      <IdeaPool />
-      <Shortlist />
-      <Prototype />
-      <TagDesign />
-      <ThreadRule flip />
-      <Concerns />
-      <Reflection />
-      <FullDeck />
+      <CaseLayout theme={THEME} name="untangling the knots" meta={META} sections={SECTIONS} header={<Title />} top={92}>
+        <Intro />
+        <Walkthrough />
+        <ThreadRule />
+        <Stakeholders />
+        <Clusters />
+        <SystemMap />
+        <ThreadRule flip />
+        <SitesAndLeverage />
+        <Gigamap />
+        <ThreadRule />
+        <IdeaPool />
+        <Shortlist />
+        <TagDesign />
+        <ThreadRule flip />
+        <Prototype />
+        <Concerns />
+        <ThreadRule />
+        <Outcome />
+        <Reflection />
+        <FullDeck />
+      </CaseLayout>
 
       <SiteFooter
         tint={ACCENT}
